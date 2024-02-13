@@ -75,7 +75,6 @@ class TripleBarrierBuilder:
                  pip_decimal_position: int,
                  dynamic_barrier_function: object = None
                  ) -> None:
-
         self.open: pd.Series = open
         self.high: pd.Series = high
         self.low: pd.Series = low
@@ -95,28 +94,17 @@ class TripleBarrierBuilder:
     def compute(self):
         ...
 
-    def compute_take_profit_level(self):
+    def compute_take_profit_level(self) -> datetime:
+        ...
 
-        self.triple_barrier.open_price = self.open[self.triple_barrier.open_datetime]
-        if self.triple_barrier.trade_side == TradeSide.BUY:
-            self.triple_barrier.take_profit_level = (self.triple_barrier.open_price +
-                                                     self.triple_barrier.stop_loss_decimal)
-        else:
-            self.triple_barrier.take_profit_level = (self.triple_barrier.open_price -
-                                                     self.triple_barrier.take_profit_decimal)
+    def calculate_next_take_profit_hit(self) -> datetime:
+        ...
 
-    def calculate_next_take_profit_hit(self):
-        high = self.high[self.triple_barrier.open_datetime:]
-        low = self.low[self.triple_barrier.open_datetime:]
+    def calculate_time_barrier_hit(self) -> datetime:
+        ...
 
-        if self.triple_barrier.trade_side == TradeSide.BUY:
-            mask_level_hit = high > self.triple_barrier.take_profit_level
-            hit_date = high[mask_level_hit].index[0]
-        else:
-            mask_level_hit = low < self.triple_barrier.take_profit_level
-            hit_date = low[mask_level_hit].index[0]
-
-        self.triple_barrier.take_profit_hit_datetime = datetime.fromtimestamp(datetime.timestamp(hit_date))
+    def calculate_dynamic_barrier_hit(self) -> datetime:
+        ...
 
 
 class TakeProfit:
@@ -128,7 +116,7 @@ class TakeProfit:
                  close_price: pd.Series,
                  open_datetime: str,
                  trade_side: TradeSide,
-                 pip_decimal_position: float,
+                 pip_decimal_position: int,
                  take_profit_width: float | None = None,
                  take_profit_level: float | None = None
                  ):
@@ -137,9 +125,10 @@ class TakeProfit:
         self._high_price: pd.Series = high_price
         self._low_price: pd.Series = low_price
         self._close_price: pd.Series = close_price
-        self._open_datetime: datetime = open_datetime
+        self._open_datetime: str = open_datetime
         self._trade_side: TradeSide = trade_side
         self._pip_factor: float = 10 ** (-pip_decimal_position)
+        self._pip_decimal_position: int = pip_decimal_position
 
         if take_profit_width is not None:
             self._take_profit_decimal: float = take_profit_width * self._pip_factor
@@ -154,9 +143,11 @@ class TakeProfit:
         if self._take_profit_level is None:
             trade_open_price = self._open_price[self._open_datetime]
             if self._trade_side == TradeSide.BUY:
-                self.barrier.level = (trade_open_price + self._take_profit_decimal)
+                self.barrier.level = (trade_open_price + self._take_profit_decimal).round(
+                    self._pip_decimal_position + 1)
             else:
-                self.barrier.level = (trade_open_price - self._take_profit_decimal)
+                self.barrier.level = (trade_open_price - self._take_profit_decimal).round(
+                    self._pip_decimal_position + 1)
 
     def _compute_next_take_profit_hit(self):
 
@@ -196,7 +187,7 @@ class StopLoss:
         self._high_price: pd.Series = high_price
         self._low_price: pd.Series = low_price
         self._close_price: pd.Series = close_price
-        self._open_datetime: datetime = open_datetime
+        self._open_datetime: str = open_datetime
         self._trade_side: TradeSide = trade_side
         self._pip_factor: float = 10 ** (-pip_decimal_position)
         self._pip_decimal_position: int = pip_decimal_position
@@ -236,3 +227,60 @@ class StopLoss:
         self._compute_stop_loss_level()
         self._compute_next_level_hit()
         return self.barrier
+
+
+class TimeBarrier:
+
+    def __init__(self,
+                 close_price: pd.Series,
+                 time_barrier_periods: int,
+                 open_datetime: str):
+        self.close_price: pd.Series = close_price
+        self.time_barrier_periods: int = time_barrier_periods
+        self.open_datetime: str = open_datetime
+
+        self.barrier = Barrier()
+
+    def _compute_hit_date_time(self):
+        close_price = self.close_price[self.open_datetime:]
+        self.barrier.hit_datetime = close_price.shift(-self.time_barrier_periods).index[0]
+
+    def _compute_hit_level(self):
+        close_price = self.close_price[self.open_datetime:]
+        self.barrier.level = close_price.shift(-self.time_barrier_periods).iloc[0]
+
+    def compute(self) -> Barrier:
+        self._compute_hit_date_time()
+        self._compute_hit_level()
+        return self.barrier
+
+
+class DynamicBarrier:
+
+    def __init__(self,
+                 open_price: pd.Series,
+                 exit_signals: pd.Series,
+                 open_datetime: str,
+                 ):
+        self.open_price = open_price
+        self.open_datetime: str = open_datetime
+        self.exit_signals: pd.Series = exit_signals
+
+        self.barrier: Barrier = Barrier()
+
+    def compute(self):
+        self._compute_hit_datetime()
+        self._compute_hit_level()
+        return self.barrier
+
+    def _compute_hit_datetime(self):
+        trade_exit_signals: pd.Series = self.exit_signals[self.open_datetime:]
+        mask_exit = trade_exit_signals == 1
+        self.barrier.hit_datetime = trade_exit_signals[mask_exit].index[0]
+
+    def _compute_hit_level(self):
+        open_price: pd.Series = self.open_price[self.open_datetime:]
+        trade_exit_signals: pd.Series = self.exit_signals[self.open_datetime:]
+        mask_exit = trade_exit_signals == 1
+        self.barrier.level = open_price[mask_exit][0]
+
