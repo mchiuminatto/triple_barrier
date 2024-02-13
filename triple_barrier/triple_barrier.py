@@ -282,5 +282,5 @@ class DynamicBarrier:
         open_price: pd.Series = self.open_price[self.open_datetime:]
         trade_exit_signals: pd.Series = self.exit_signals[self.open_datetime:]
         mask_exit = trade_exit_signals == 1
-        self.barrier.level = open_price[mask_exit][0]
+        self.barrier.level = open_price[mask_exit].iloc[0]
 

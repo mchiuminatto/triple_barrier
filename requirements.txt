@@ -7,6 +7,7 @@ asttokens==2.4.1
 async-lru==2.0.4
 attrs==23.2.0
 autoflake==2.2.1
+autopep8==2.0.4
 Babel==2.14.0
 beautifulsoup4==4.12.3
 bleach==6.1.0
@@ -15,6 +16,7 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 comm==0.2.1
 contourpy==1.2.0
+coverage==7.4.1
 cycler==0.12.1
 debugpy==1.8.0
 decorator==5.1.1
@@ -25,6 +27,7 @@ fastjsonschema==2.19.1
 fonttools==4.47.2
 fqdn==1.5.1
 idna==3.6
+iniconfig==2.0.0
 ipykernel==6.29.0
 ipython==8.21.0
 ipywidgets==8.1.1
@@ -70,17 +73,20 @@ parso==0.8.3
 pexpect==4.9.0
 pillow==10.2.0
 platformdirs==4.2.0
+pluggy==1.4.0
 prometheus-client==0.19.0
 prompt-toolkit==3.0.43
 psutil==5.9.8
 ptyprocess==0.7.0
 pure-eval==0.2.2
 pyarrow==15.0.0
+pycodestyle==2.11.1
 pycparser==2.21
 pyflakes==3.2.0
 Pygments==2.17.2
 pylint==3.0.3
 pyparsing==3.1.1
+pytest==8.0.0
 python-dateutil==2.8.2
 python-json-logger==2.0.7
 pytz==2024.1
