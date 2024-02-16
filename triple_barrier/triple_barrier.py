@@ -3,6 +3,7 @@ from enum import Enum
 from dateutil import parser
 
 import pandas as pd
+import numpy as np
 
 
 class BarrierType(Enum):
@@ -50,11 +51,11 @@ class MultiBarrierBuilder:
                  low_price: pd.Series,
                  close_price: pd.Series,
                  trade_open_datetime: str,
-                 take_profit_pips: float,
-                 stop_loss_pips: float,
-                 time_barrier_periods: int,
                  trade_side: TradeSide,
                  pip_decimal_position: int,
+                 take_profit_pips: float = np.inf,
+                 stop_loss_pips: float = np.inf,
+                 time_barrier_periods: int = np.inf,
                  dynamic_exit: pd.Series | None = None
                  ) -> None:
         self.open: pd.Series = open_price
@@ -151,41 +152,52 @@ class TakeProfit:
         self._high_price: pd.Series = high_price
         self._low_price: pd.Series = low_price
         self._close_price: pd.Series = close_price
+
         self._open_datetime: str = open_datetime
         self._trade_side: TradeSide = trade_side
+
         self._pip_factor: float = 10 ** (-pip_decimal_position)
         self._pip_decimal_position: int = pip_decimal_position
+        self._take_profit_width: float = take_profit_width
 
-        if take_profit_width is not None:
-            self._take_profit_decimal: float = take_profit_width * self._pip_factor
+        if self._take_profit_width is not None:
+            self._take_profit_decimal: float = self._take_profit_width * self._pip_factor
+
         self._take_profit_level = take_profit_level
 
-        self.barrier: Barrier = Barrier(barrier_type=BarrierType.TAKE_PROFIT)
-
-        self._take_profit_level: float | None = None
+        self.barrier: Barrier = Barrier(barrier_type=BarrierType.TAKE_PROFIT,
+                                        level=self._take_profit_level)
 
     def _compute_take_profit_level(self):
-
-        if self._take_profit_level is None:
+        # TODO: deal with no take profit
+        if self._take_profit_width is not np.inf:
+            barrier_level: float | None = None
             trade_open_price = self._open_price[self._open_datetime]
             if self._trade_side == TradeSide.BUY:
-                self.barrier.level = (trade_open_price + self._take_profit_decimal).round(
+                barrier_level = (trade_open_price + self._take_profit_decimal).round(
                     self._pip_decimal_position + 1)
             else:
-                self.barrier.level = (trade_open_price - self._take_profit_decimal).round(
+                barrier_level = (trade_open_price - self._take_profit_decimal).round(
                     self._pip_decimal_position + 1)
 
+            self.barrier.level = barrier_level
+
     def _compute_next_take_profit_hit(self):
+        # TODO: deal width no take_profit
+        hit_date: datetime | None = None
 
-        high = self._high_price[self._open_datetime:]
-        low = self._low_price[self._open_datetime:]
-
-        if self._trade_side == TradeSide.BUY:
-            mask_level_hit = high > self.barrier.level
-            hit_date = high[mask_level_hit].index[0]
+        if self._take_profit_width == np.inf:
+            hit_date = self._high_price[self._open_datetime:][-1]
         else:
-            mask_level_hit = low < self.barrier.level
-            hit_date = low[mask_level_hit].index[0]
+            high = self._high_price[self._open_datetime:]
+            low = self._low_price[self._open_datetime:]
+
+            if self._trade_side == TradeSide.BUY:
+                mask_level_hit = high > self.barrier.level
+                hit_date = high[mask_level_hit].index[0]
+            else:
+                mask_level_hit = low < self.barrier.level
+                hit_date = low[mask_level_hit].index[0]
 
         self.barrier.hit_datetime = datetime.fromtimestamp(datetime.timestamp(hit_date))
 

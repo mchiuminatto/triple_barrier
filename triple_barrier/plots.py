@@ -73,9 +73,10 @@ class PlotTripleBarrier:
             plots.append(mpl.make_addplot(feature[date_from:date_to], type="line", marker="8", label=feature.name))
 
         barrier_points = [
-            (date_from, take_profit), (time_limit, take_profit),
-            (time_limit, stop_loss), (date_from, stop_loss),
-            (date_from, stop_loss), (date_from, take_profit),
+            [(date_from, take_profit), (time_limit, take_profit)],
+            [(date_from, stop_loss), (time_limit, stop_loss)],
+            [(date_from, stop_loss), (date_from, take_profit)],
+            [(time_limit, stop_loss), (time_limit, take_profit)]
         ]
 
         barrier_lines = dict(alines=barrier_points,
