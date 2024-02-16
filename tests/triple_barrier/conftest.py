@@ -18,6 +18,10 @@ def prepare_entry_data(prepare_price_data):
 
 @pytest.fixture
 def prepare_price_data() -> pd.DataFrame:
+    return calculate_test_features()
+
+
+def calculate_test_features() -> pd.DataFrame:
 
     file_name = f"{constants.ROOT_FOLDER}/tests/data/EURUSD_5 Mins_Ask_2023.01.02_2024.02.02.csv"
 

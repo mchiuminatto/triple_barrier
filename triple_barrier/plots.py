@@ -14,6 +14,7 @@ class PlotTripleBarrier:
                  low_price: pd.Series,
                  close_price: pd.Series,
                  pip_decimal_position: int,
+                 overlay_features: list| None = None,
                  ):
 
         self.ohlc = self.build_ohlc(open_price,
@@ -21,6 +22,7 @@ class PlotTripleBarrier:
                                     low_price,
                                     close_price)
         self.pip_factor = 10 ** (-pip_decimal_position)
+        self.overlay_features: list = overlay_features
 
     @staticmethod
     def build_ohlc(open_price: pd.Series,
@@ -41,8 +43,8 @@ class PlotTripleBarrier:
                             stop_loss_width: float,
                             time_barrier_periods: int,
                             trade_side: TradeSide,
-                            dynamic_barrier: object = None,
-                            periods_to_plot: int = 50
+                            periods_to_plot: int = 50,
+                            dynamic_exit: pd.Series | None = None
                             ):
 
         date_from = pd.to_datetime(entry_period)
@@ -63,11 +65,12 @@ class PlotTripleBarrier:
         print("Stop loss", stop_loss)
         print("Time barrier", time_limit)
 
-        plots = [
-            # mpl.make_addplot(self.ohlc[date_from: date_to]["mva-12"], label="mva-12"),
-            # mpl.make_addplot(self.ohlc[date_from: date_to]["mva-24"], label="mva-24"),
-            # mpl.make_addplot(self.ohlc[date_from: date_to]["entry-mark"], type="scatter", marker="^", color="red")
-        ]
+        plots: list = []
+        if dynamic_exit is not None:
+            plots.append(mpl.make_addplot(dynamic_exit[date_from:date_to], type="scatter", marker="8", color="red"))
+
+        for feature in self.overlay_features:
+            plots.append(mpl.make_addplot(feature[date_from:date_to], type="line", marker="8", label=feature.name))
 
         barrier_points = [
             (date_from, take_profit), (time_limit, take_profit),

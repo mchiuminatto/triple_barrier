@@ -269,7 +269,7 @@ class TimeBarrier:
 
     def _compute_hit_date_time(self):
         close_price = self.close_price[self.open_datetime:]
-        self.barrier.hit_datetime = close_price.shift(-self.time_barrier_periods).index[0]
+        self.barrier.hit_datetime = close_price.index[self.time_barrier_periods]
 
     def _compute_hit_level(self):
         close_price = self.close_price[self.open_datetime:]
