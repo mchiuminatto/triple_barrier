@@ -1,4 +1,5 @@
-from datetime import datetime
+import numpy as np
+import pandas as pd
 from dateutil import parser
 from triple_barrier.triple_barrier import (TradeSide,
                                            BarrierType,
@@ -10,6 +11,7 @@ from triple_barrier.triple_barrier import (TradeSide,
                                            MultiBarrierBuilder,
                                            MultiBarrier,
                                            ExitType)
+from triple_barrier import constants
 
 
 class TestTakeProfit:
@@ -29,10 +31,10 @@ class TestTakeProfit:
                                          take_profit_width=5
                                          )
 
-        barrier: Barrier = take_profit_barrier.compute()
+        take_profit_barrier.compute()
 
-        assert barrier.level == 1.06759
-        assert barrier.hit_datetime == parser.parse("2023-01-02 20:55:00")
+        assert take_profit_barrier.barrier.level == 1.06759
+        assert take_profit_barrier.barrier.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
     def test_static_tp_hit_short(self, prepare_price_data, prepare_entry_data):
         df = prepare_price_data
@@ -49,10 +51,10 @@ class TestTakeProfit:
                                          take_profit_width=10
                                          )
 
-        barrier: Barrier = take_profit_barrier.compute()
+        take_profit_barrier.compute()
 
-        assert barrier.level == 1.06609
-        assert barrier.hit_datetime == parser.parse("2023-01-02 22:05:00")
+        assert take_profit_barrier.barrier.level == 1.06609
+        assert take_profit_barrier.barrier.hit_datetime == parser.parse("2023-01-02 22:05:00")
 
     def test_take_profit_level_hit_short(self, prepare_price_data, prepare_entry_data):
         df = prepare_price_data
@@ -69,10 +71,69 @@ class TestTakeProfit:
                                          take_profit_level=1.06609
                                          )
 
-        barrier: Barrier = take_profit_barrier.compute()
+        take_profit_barrier.compute()
 
-        assert barrier.level == 1.06609
-        assert barrier.hit_datetime == parser.parse("2023-01-02 22:05:00")
+        assert take_profit_barrier.barrier.level == 1.06609
+        assert take_profit_barrier.barrier.hit_datetime == parser.parse("2023-01-02 22:05:00")
+
+    def test_take_profit_no_level_no_width_short(self, prepare_price_data, prepare_entry_data):
+        df = prepare_price_data
+
+        trade_open_datetime: str = "2023-01-02 22:00:00"
+
+        take_profit_barrier = TakeProfit(open_price=df.open,
+                                         high_price=df.high,
+                                         low_price=df.low,
+                                         close_price=df.close,
+                                         open_datetime=trade_open_datetime,
+                                         trade_side=TradeSide.SELL,
+                                         pip_decimal_position=4
+                                         )
+
+        take_profit_barrier.compute()
+
+        assert take_profit_barrier.barrier.level == -np.inf
+        assert take_profit_barrier.barrier.hit_datetime == constants.INFINITE_DATE
+
+    def test_take_profit_no_level_no_width_long(self, prepare_price_data, prepare_entry_data):
+        df = prepare_price_data
+
+        trade_open_datetime: str = "2023-01-02 22:00:00"
+
+        take_profit_barrier = TakeProfit(open_price=df.open,
+                                         high_price=df.high,
+                                         low_price=df.low,
+                                         close_price=df.close,
+                                         open_datetime=trade_open_datetime,
+                                         trade_side=TradeSide.BUY,
+                                         pip_decimal_position=4
+                                         )
+
+        take_profit_barrier.compute()
+
+        assert take_profit_barrier.barrier.level == np.inf
+        assert take_profit_barrier.barrier.hit_datetime == constants.INFINITE_DATE
+
+    def test_static_tp_hit_level_and_width_long(self, prepare_price_data, prepare_entry_data):
+        df = prepare_price_data
+
+        trade_open_datetime: str = "2023-01-02 20:45:00"
+
+        take_profit_barrier = TakeProfit(open_price=df.open,
+                                         high_price=df.high,
+                                         low_price=df.low,
+                                         close_price=df.close,
+                                         open_datetime=trade_open_datetime,
+                                         trade_side=TradeSide.BUY,
+                                         pip_decimal_position=4,
+                                         take_profit_width=50,
+                                         take_profit_level=1.06759
+                                         )
+
+        take_profit_barrier.compute()
+
+        assert take_profit_barrier.barrier.level == 1.06759
+        assert take_profit_barrier.barrier.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
 
 class TestStopLoss:
@@ -91,9 +152,9 @@ class TestStopLoss:
                                      stop_loss_width=5
                                      )
 
-        stop_loss: Barrier = stop_loss_barrier.compute()
-        assert stop_loss.level == 1.06697
-        assert stop_loss.hit_datetime == parser.parse("2023-01-03 00:15:00")
+        stop_loss_barrier.compute()
+        assert stop_loss_barrier.barrier.level == 1.06697
+        assert stop_loss_barrier.barrier.hit_datetime == parser.parse("2023-01-03 00:15:00")
 
     def test_static_sl_hit_short(self, prepare_price_data, prepare_entry_data):
         df = prepare_price_data
@@ -110,10 +171,10 @@ class TestStopLoss:
                                      stop_loss_width=5
                                      )
 
-        stop_loss: Barrier = stop_loss_barrier.compute()
+        stop_loss_barrier.compute()
 
-        assert stop_loss.level == 1.05535
-        assert stop_loss.hit_datetime == parser.parse("2023-01-03 15:25:00")
+        assert stop_loss_barrier.barrier.level == 1.05535
+        assert stop_loss_barrier.barrier.hit_datetime == parser.parse("2023-01-03 15:25:00")
 
 
 class TestTimeBarrier:
@@ -147,7 +208,14 @@ class TestDynamicBarrier:
 
 class TestTripleBarrier:
 
-    def test_full_barrier_take_profit(self, prepare_price_data):
+    def test_full_barrier_take_profit_long(self, prepare_price_data):
+        """
+        Test full barrier (take profit, stop loss, time barrier, dynamic exit), long trade
+        with take profit hit
+
+        :param prepare_price_data:
+        :return:
+        """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
                                               high_price=df.high,
@@ -158,14 +226,21 @@ class TestTripleBarrier:
                                               stop_loss_pips=5,
                                               trade_side=TradeSide.BUY,
                                               pip_decimal_position=4,
-                                              time_barrier_periods=10)
+                                              time_barrier_periods=10,
+                                              dynamic_exit=df.exit)
 
         barrier_builder.compute()
         assert barrier_builder.multi_barrier.first_hit.barrier_type == BarrierType.TAKE_PROFIT
         assert barrier_builder.multi_barrier.first_hit.level == 1.06759
         assert barrier_builder.multi_barrier.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
-    def test_full_barrier_stop_loss(self, prepare_price_data):
+    def test_full_barrier_stop_loss_short(self, prepare_price_data):
+        """
+        Test full barrier (take profit, stop loss, time barrier, dynamic exit), short_trade
+        with take stop loss hit
+        :param prepare_price_data:
+        :return:
+        """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
                                               high_price=df.high,
@@ -184,6 +259,13 @@ class TestTripleBarrier:
         assert barrier_builder.multi_barrier.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
     def test_full_barrier_time_barrier_short(self, prepare_price_data):
+        """
+        Test full barrier (take profit, stop loss, time barrier, dynamic exit), short trade
+        with time barrier it
+
+        :param prepare_price_data:
+        :return:
+        """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
                                               high_price=df.high,
@@ -201,7 +283,14 @@ class TestTripleBarrier:
         assert barrier_builder.multi_barrier.first_hit.level == 1.06710
         assert barrier_builder.multi_barrier.first_hit.hit_datetime == parser.parse("2023-01-02 21:35:00")
 
-    def test_full_barrier_time_barrier_long(self, prepare_price_data):
+    def test_full_barrier_time_barrier_hit_long(self, prepare_price_data):
+        """
+        Test full barrier (take profit, stop loss, time barrier, dynamic exit), long trade
+        with time barrier hit
+
+        :param prepare_price_data:
+        :return:
+        """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
                                               high_price=df.high,
@@ -219,7 +308,14 @@ class TestTripleBarrier:
         assert barrier_builder.multi_barrier.first_hit.level == 1.06710
         assert barrier_builder.multi_barrier.first_hit.hit_datetime == parser.parse("2023-01-02 21:35:00")
 
-    def test_full_barrier_dynamic_long(self, prepare_price_data):
+    def test_full_barrier_dynamic_hit_long(self, prepare_price_data):
+        """
+        Test full barrier (take profit, stop loss, time barrier, dynamic exit), long trade
+        with dynamic barrier hit
+
+        :param prepare_price_data:
+        :return:
+        """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
                                               high_price=df.high,
@@ -238,7 +334,14 @@ class TestTripleBarrier:
         assert barrier_builder.multi_barrier.first_hit.level ==  1.06766
         assert barrier_builder.multi_barrier.first_hit.hit_datetime == parser.parse("2023-01-02 21:10:00")
 
-    def test_full_barrier_dynamic_short(self, prepare_price_data):
+    def test_full_barrier_dynamic_hit_short(self, prepare_price_data):
+        """
+        Test full barrier (take profit, stop loss, time barrier, dynamic exit), short trade
+        with time barrier hit
+
+        :param prepare_price_data:
+        :return:
+        """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
                                               high_price=df.high,
@@ -257,7 +360,14 @@ class TestTripleBarrier:
         assert barrier_builder.multi_barrier.first_hit.level == 1.06766
         assert barrier_builder.multi_barrier.first_hit.hit_datetime == parser.parse("2023-01-02 21:10:00")
 
-    def test_time_barrier_take_profit_long(self, prepare_price_data):
+    def test_time_barrier_take_profit_hit_long(self, prepare_price_data):
+        """
+        Test no stop loss  (take profit, time barrier, dynamic exit), long trade
+        with take profit hit
+
+        :param prepare_price_data:
+        :return:
+        """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
                                               high_price=df.high,
@@ -275,12 +385,66 @@ class TestTripleBarrier:
         assert barrier_builder.multi_barrier.first_hit.level == 1.06759
         assert barrier_builder.multi_barrier.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
+    def test_time_barrier_stop_loss_hit_short(self, prepare_price_data):
+        """
+        Test no take profit  (stop loss, time barrier, dynamic exit), short trade
+        with stop_loss hit
+        :param prepare_price_data:
+        :return:
+        """
+        df = prepare_price_data
+        barrier_builder = MultiBarrierBuilder(open_price=df.open,
+                                              high_price=df.high,
+                                              low_price=df.low,
+                                              close_price=df.close,
+                                              trade_open_datetime="2023-01-02 20:45:00",
+                                              stop_loss_pips=5,
+                                              trade_side=TradeSide.SELL,
+                                              pip_decimal_position=4,
+                                              time_barrier_periods=10,
+                                              dynamic_exit=df.exit)
 
-    # case set 2: Time barrier + stop loss or take profit
+        barrier_builder.compute()
+        assert barrier_builder.multi_barrier.first_hit.barrier_type == BarrierType.STOP_LOSS
+        assert barrier_builder.multi_barrier.first_hit.level == 1.06759
+        assert barrier_builder.multi_barrier.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
-    # case 2.1 Take profit + Time barrier long, hit take profit
-    # case 2.2 Take profit + Time barrier long, hit time barrier
-    # case 2.2 Take profit + Time barrier short, hit take profit
+    def test_use_in_pandas_apply(self, prepare_price_data):
+
+        df = prepare_price_data
+
+        def calculate_exit(row: any,
+                           ohlc: pd.DataFrame,
+                           stop_loss_width: float,
+                           take_profit_width: float,
+                           trade_side: TradeSide,
+                           pip_decimal_position: int,
+                           time_barrier_periods: int):
+
+            barrier_builder = MultiBarrierBuilder(open_price=ohlc.open,
+                                                  high_price=ohlc.high,
+                                                  low_price=ohlc.low,
+                                                  close_price=ohlc.close,
+                                                  trade_open_datetime=str(row.name),
+                                                  stop_loss_pips=stop_loss_width,
+                                                  take_profit_pips=take_profit_width,
+                                                  trade_side=trade_side,
+                                                  pip_decimal_position=pip_decimal_position,
+                                                  time_barrier_periods=time_barrier_periods,
+                                                  dynamic_exit=ohlc.exit)
+            barrier_builder.compute()
+
+            row["close-price"] = barrier_builder.multi_barrier.first_hit.level
+            row["close-datetime"] = barrier_builder.multi_barrier.first_hit.hit_datetime
+            row["close-type"] = barrier_builder.multi_barrier.first_hit.barrier_type.value
+
+        entry = df[(df.entry==1)]
+        entry.apply(calculate_exit, args=(entry, 5, 10, TradeSide.BUY, 4, 10), axis=1)
+
+
+
+    # TODO: Add more tests
+
     # case 2.3 Take profit + Time barrier short, hit time barrier
 
     # case 2.4 Stop loss + Time barrier long, hit stop loss

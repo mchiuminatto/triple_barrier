@@ -123,10 +123,10 @@ class PlotTripleBarrier:
 
     def calculate_stop_loss_level(self,
                                   open_price: float,
-                                  take_profit_width: float,
+                                  stop_loss_width: float,
                                   trade_side: TradeSide):
 
-        return open_price - trade_side.value * take_profit_width * self.pip_factor
+        return open_price - trade_side.value * stop_loss_width * self.pip_factor
 
     def calculate_time_limit_datetime(self,
                                       date_from: datetime,
