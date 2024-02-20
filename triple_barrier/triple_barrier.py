@@ -75,12 +75,15 @@ class MultiBarrierBuilder:
         self.dynamic_exit: pd.Series = dynamic_exit
 
     def compute(self):
-        self.compute_take_profit_barrier()
-        self.compute_stop_loss_barrier()
-        self.compute_time_barrier()
-        if self.dynamic_exit is not None:
-            self.compute_dynamic_barrier()
-        self.select_first_hit()
+        try:
+            self.compute_take_profit_barrier()
+            self.compute_stop_loss_barrier()
+            self.compute_time_barrier()
+            if self.dynamic_exit is not None:
+                self.compute_dynamic_barrier()
+            self.select_first_hit()
+        except Exception as error_instance:
+            raise Exception(str(error_instance))
 
     def compute_take_profit_barrier(self):
         take_profit_barrier: TakeProfit = TakeProfit(open_price=self.open,
@@ -178,29 +181,23 @@ class TakeProfit:
 
     def _compute_next_take_profit_hit(self):
 
-        try:
-            hit_date: datetime | None = None
+        hit_date: datetime | None = constants.INFINITE_DATE
 
-            if self.barrier.level == self._trade_side.value * np.inf:
-                hit_date = constants.INFINITE_DATE
+        if self.barrier.level != self._trade_side.value * np.inf:
+
+            high = self._high_price[self._open_datetime:]
+            low = self._low_price[self._open_datetime:]
+
+            if self._trade_side == TradeSide.BUY:
+                mask_level_hit = high >= self.barrier.level
+                if len(high[mask_level_hit] != 0):
+                    hit_date = high[mask_level_hit].index[0]
             else:
-                high = self._high_price[self._open_datetime:]
-                low = self._low_price[self._open_datetime:]
+                mask_level_hit = low <= self.barrier.level
+                if len(low[mask_level_hit]) != 0:
+                    hit_date = low[mask_level_hit].index[0]
 
-                if self._trade_side == TradeSide.BUY:
-                    mask_level_hit = high >= self.barrier.level
-                    if len(high[mask_level_hit] != 0):
-                        hit_date = high[mask_level_hit].index[0]
-                else:
-                    mask_level_hit = low <= self.barrier.level
-                    if len(low[mask_level_hit]) != 0:
-                        hit_date = low[mask_level_hit].index[0]
-
-                self.barrier.hit_datetime = datetime.fromtimestamp(datetime.timestamp(hit_date))
-        except IndexError:
-            raise(">>>>>")
-        except TypeError:
-            raise(">>>>>")
+        self.barrier.hit_datetime = datetime.fromtimestamp(datetime.timestamp(hit_date))
 
 
 class StopLoss:
@@ -247,20 +244,20 @@ class StopLoss:
 
     def _compute_next_level_hit(self):
 
-        hit_datetime: datetime | None = None
+        hit_datetime: datetime = constants.INFINITE_DATE
 
-        if self.barrier.level == -self._trade_side.value * np.inf:
-            hit_datetime = constants.INFINITE_DATE
-        else:
+        if self.barrier.level != -self._trade_side.value * np.inf:
             high = self._high_price[self._open_datetime:]
             low = self._low_price[self._open_datetime:]
 
             if self._trade_side == TradeSide.BUY:
                 mask_level_hit = low <= self.barrier.level
-                hit_datetime = high[mask_level_hit].index[0]
+                if len(low[mask_level_hit]) != 0:
+                    hit_datetime = high[mask_level_hit].index[0]
             else:
                 mask_level_hit = high >= self.barrier.level
-                hit_datetime = low[mask_level_hit].index[0]
+                if len(high[mask_level_hit] != 0):
+                    hit_datetime = low[mask_level_hit].index[0]
 
         self.barrier.hit_datetime = datetime.fromtimestamp(datetime.timestamp(hit_datetime))
 
@@ -283,12 +280,22 @@ class TimeBarrier:
         self._compute_hit_level()
 
     def _compute_hit_date_time(self):
+        hit_datetime: datetime = constants.INFINITE_DATE
+
         close_price = self.close_price[self.open_datetime:]
-        self.barrier.hit_datetime = close_price.index[self.time_barrier_periods]
+        if len(close_price) >= self.time_barrier_periods + 1:
+            hit_datetime = close_price.index[self.time_barrier_periods]
+
+        self.barrier.hit_datetime = hit_datetime
 
     def _compute_hit_level(self):
+        hit_level: float = np.inf
+
         close_price = self.close_price[self.open_datetime:]
-        self.barrier.level = close_price.shift(-self.time_barrier_periods).iloc[0]
+        if self.barrier.hit_datetime != constants.INFINITE_DATE:
+            hit_level = close_price[self.barrier.hit_datetime]
+
+        self.barrier.level = hit_level
 
 
 class DynamicBarrier:
