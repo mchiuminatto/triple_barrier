@@ -438,7 +438,9 @@ class TestTripleBarrier:
             return row
 
         entry = df[(df.entry == 1)]
+        breakpoint()
         entry = entry.apply(calculate_exit, args=(entry, 5, 10, TradeSide.BUY, 4, 10), axis=1)
+        breakpoint()
 
 
 # TODO: Add more tests
