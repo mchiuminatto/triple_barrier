@@ -1,4 +1,8 @@
 
+# WARNING:
+
+This is a work in progress
+
 # Overview
 
 Please note that it is not the intend of this document to discuss the effectiveness of  different tools to estimate the potential profitability of a trading strategy. It is assumed that the audience of this document has some background in algorithmic trading and understand concepts like back-testing, machine learning labeling. 
