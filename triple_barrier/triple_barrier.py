@@ -54,23 +54,31 @@ class MultiBarrierBuilder:
                  trade_open_datetime: str,
                  trade_side: TradeSide,
                  pip_decimal_position: int,
-                 take_profit_pips: float = np.inf,
-                 stop_loss_pips: float = np.inf,
+                 take_profit_pips: float = None,
+                 take_profit_level: float | None = None,
+                 stop_loss_pips: float | None = None,
+                 stop_loss_level: float | None = None,
                  time_barrier_periods: int = np.inf,
                  dynamic_exit: pd.Series | None = None
                  ) -> None:
+
         self.open: pd.Series = open_price
         self.high: pd.Series = high_price
         self.low: pd.Series = low_price
         self.close: pd.Series = close_price
 
         self.multi_barrier: MultiBarrier = MultiBarrier()
-        self.open_datetime = trade_open_datetime
-        self.take_profit_pips = take_profit_pips
-        self.stop_loss_pips = stop_loss_pips
-        self.time_barrier_periods = time_barrier_periods
-        self.trade_side = trade_side
-        self.pip_decimal_position = pip_decimal_position
+        self.open_datetime: str = trade_open_datetime
+
+        self.take_profit_pips: float = take_profit_pips
+        self.take_profit_level: float = take_profit_level
+
+        self.stop_loss_pips: float = stop_loss_pips
+        self.stop_loss_level: float = stop_loss_level
+
+        self.time_barrier_periods: int = time_barrier_periods
+        self.trade_side: TradeSide = trade_side
+        self.pip_decimal_position: int = pip_decimal_position
 
         self.dynamic_exit: pd.Series = dynamic_exit
 
@@ -160,24 +168,31 @@ class TakeProfit:
         self._trade_side: TradeSide = trade_side
         self._pip_decimal_position: int = pip_decimal_position
         self._take_profit_width: float = take_profit_width
+        self._take_profit_level: float = take_profit_level
+
+        self._validate_barrier_parameters()
 
         self.barrier: Barrier = Barrier(barrier_type=BarrierType.TAKE_PROFIT,
                                         level=take_profit_level)
 
+    def _validate_barrier_parameters(self):
+        if self._take_profit_width is not None and self._take_profit_level is not None:
+            raise ValueError("Either take_profit_level or take_profit_with are allowed not both")
+
     def compute(self):
-        if self.barrier.level is None:
-            self._compute_take_profit_level()
+        self._compute_take_profit_level()
         self._compute_next_take_profit_hit()
 
     def _compute_take_profit_level(self):
-        barrier_level: float = self._trade_side.value * np.inf
-        if self._take_profit_width is not None:
-            pip_factor: float = 10 ** (-self._pip_decimal_position)
-            take_profit_width_decimal: float = self._take_profit_width * pip_factor
-            trade_open_price = self._open_price[self._open_datetime]
-            barrier_level = (trade_open_price + self._trade_side.value * take_profit_width_decimal).round(
-                self._pip_decimal_position + 1)
-        self.barrier.level = barrier_level
+        if self.barrier.level is None:
+            barrier_level: float = self._trade_side.value * np.inf
+            if self._take_profit_width is not None:
+                pip_factor: float = 10 ** (-self._pip_decimal_position)
+                take_profit_width_decimal: float = self._take_profit_width * pip_factor
+                trade_open_price = self._open_price[self._open_datetime]
+                barrier_level = (trade_open_price + self._trade_side.value * take_profit_width_decimal).round(
+                    self._pip_decimal_position + 1)
+            self.barrier.level = barrier_level
 
     def _compute_next_take_profit_hit(self):
 
@@ -210,8 +225,8 @@ class StopLoss:
                  open_datetime: str,
                  trade_side: TradeSide,
                  pip_decimal_position: int,
-                 stop_loss_width: float | None = None,
-                 stop_loss_level: float | None = None
+                 stop_loss_width: float = None,
+                 stop_loss_level: float = None
                  ):
 
         self._open_price: pd.Series = open_price
@@ -222,25 +237,31 @@ class StopLoss:
         self._trade_side: TradeSide = trade_side
         self._pip_decimal_position: int = pip_decimal_position
         self._stop_loss_width: float = stop_loss_width
-        self._stop_loss_level: float | None = stop_loss_level
+        self._stop_loss_level: float = stop_loss_level
+
+        self._validate_barrier_parameters()
 
         self.barrier: Barrier = Barrier(barrier_type=BarrierType.STOP_LOSS,
                                         level=stop_loss_level)
 
+    def _validate_barrier_parameters(self):
+        if self._stop_loss_width is not None and self._stop_loss_level is not None:
+            raise ValueError("Either stop_loss_level or stop_loss_with are allowed not both")
+
     def compute(self):
-        if self.barrier.level is None:
-            self._compute_stop_loss_level()
+        self._compute_stop_loss_level()
         self._compute_next_level_hit()
 
     def _compute_stop_loss_level(self):
-        barrier_level: float = -self._trade_side.value * np.inf
-        if self._stop_loss_width is not None:
-            pip_factor: float = 10 ** (-self._pip_decimal_position)
-            stop_loss_width_decimal: float = self._stop_loss_width*pip_factor
-            trade_open_price = self._open_price[self._open_datetime]
-            barrier_level = (trade_open_price - self._trade_side.value * stop_loss_width_decimal).round(
-                self._pip_decimal_position + 1)
-        self.barrier.level = barrier_level
+        if self.barrier.level is None:
+            barrier_level: float = -self._trade_side.value * np.inf
+            if self._stop_loss_width is not None:
+                pip_factor: float = 10 ** (-self._pip_decimal_position)
+                stop_loss_width_decimal: float = self._stop_loss_width*pip_factor
+                trade_open_price = self._open_price[self._open_datetime]
+                barrier_level = (trade_open_price - self._trade_side.value * stop_loss_width_decimal).round(
+                    self._pip_decimal_position + 1)
+            self.barrier.level = barrier_level
 
     def _compute_next_level_hit(self):
 
