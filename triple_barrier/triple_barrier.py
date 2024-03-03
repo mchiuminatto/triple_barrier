@@ -39,8 +39,8 @@ class Barrier:
                  hit_datetime: datetime | None = None,
                  barrier_type: BarrierType | None = None
                  ):
-        self.level: float | None = level
-        self.hit_datetime: datetime | None = hit_datetime
+        self.level: float = level
+        self.hit_datetime: datetime = hit_datetime
         self.barrier_type: BarrierType = barrier_type
 
 
@@ -102,6 +102,7 @@ class MultiBarrierBuilder:
                                                      trade_side=self.trade_side,
                                                      pip_decimal_position=self.pip_decimal_position,
                                                      take_profit_width=self.take_profit_pips,
+                                                     take_profit_level=self.take_profit_level
                                                      )
         take_profit_barrier.compute()
         self.multi_barrier.barriers.append(take_profit_barrier.barrier)
@@ -115,6 +116,7 @@ class MultiBarrierBuilder:
                                                trade_side=self.trade_side,
                                                pip_decimal_position=self.pip_decimal_position,
                                                stop_loss_width=self.stop_loss_pips,
+                                               stop_loss_level=self.stop_loss_level
                                                )
         stop_loss_barrier.compute()
         self.multi_barrier.barriers.append(stop_loss_barrier.barrier)
@@ -175,7 +177,6 @@ class TakeProfit:
         self.barrier: Barrier = Barrier(barrier_type=BarrierType.TAKE_PROFIT,
                                         level=take_profit_level)
 
-        breakpoint()
 
     def _validate_barrier_parameters(self):
         if self._take_profit_width is not None and self._take_profit_level is not None:
@@ -186,7 +187,6 @@ class TakeProfit:
         self._compute_next_take_profit_hit()
 
     def _compute_take_profit_level(self):
-        breakpoint()
         if self.barrier.level is None:
             barrier_level: float = self._trade_side.value * np.inf
             if self._take_profit_width is not None:
