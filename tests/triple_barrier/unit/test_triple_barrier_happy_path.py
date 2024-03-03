@@ -11,13 +11,10 @@ from triple_barrier.triple_barrier import (TradeSide,
 
 class TestTripleBarrier:
 
-    def test_full_barrier_take_profit_long(self, prepare_price_data):
+    def test_full_barrier_hit_take_profit_long(self, prepare_price_data):
         """
-        Test full barrier (take profit, stop loss, time barrier, dynamic exit), long trade
-        with take profit hit
-
-        :param prepare_price_data:
-        :return:
+            Test full barrier for a long trade that hits take profit, with stop loss and take profit
+            distance in pips.
         """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
@@ -39,10 +36,8 @@ class TestTripleBarrier:
 
     def test_full_barrier_stop_loss_short(self, prepare_price_data):
         """
-        Test full barrier (take profit, stop loss, time barrier, dynamic exit), short_trade
-        with take stop loss hit
-        :param prepare_price_data:
-        :return:
+            Test full barrier for a short trade that hits stop loss, with stop loss and take profit
+            distance in pips.
         """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
@@ -63,11 +58,8 @@ class TestTripleBarrier:
 
     def test_full_barrier_time_barrier_short(self, prepare_price_data):
         """
-        Test full barrier (take profit, stop loss, time barrier, dynamic exit), short trade
-        with time barrier it
-
-        :param prepare_price_data:
-        :return:
+            Test full barrier for a short trade that hits time barrier, with stop loss and take profit
+            distance in pips.
         """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
@@ -88,11 +80,8 @@ class TestTripleBarrier:
 
     def test_full_barrier_time_barrier_hit_long(self, prepare_price_data):
         """
-        Test full barrier (take profit, stop loss, time barrier, dynamic exit), long trade
-        with time barrier hit
-
-        :param prepare_price_data:
-        :return:
+            Test full barrier for a long trade that hits time barrier, with stop loss and take profit
+            distance in pips.
         """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
@@ -113,11 +102,8 @@ class TestTripleBarrier:
 
     def test_full_barrier_dynamic_hit_long(self, prepare_price_data):
         """
-        Test full barrier (take profit, stop loss, time barrier, dynamic exit), long trade
-        with dynamic barrier hit
-
-        :param prepare_price_data:
-        :return:
+            Test full barrier for a long trade that hits dynamic barrier, with stop loss and take profit
+            distance in pips.
         """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
@@ -139,11 +125,8 @@ class TestTripleBarrier:
 
     def test_full_barrier_dynamic_hit_short(self, prepare_price_data):
         """
-        Test full barrier (take profit, stop loss, time barrier, dynamic exit), short trade
-        with time barrier hit
-
-        :param prepare_price_data:
-        :return:
+            Test full barrier for a short trade that hits dynamic barrier, with stop loss and take profit
+            distance in pips.
         """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
@@ -165,12 +148,10 @@ class TestTripleBarrier:
 
     def test_time_barrier_take_profit_hit_long(self, prepare_price_data):
         """
-        Test no stop loss  (take profit, time barrier, dynamic exit), long trade
-        with take profit hit
-
-        :param prepare_price_data:
-        :return:
+            Test no stop loss barrier for a long trade that hits take profit barrier, with take profit
+            distance in pips.
         """
+
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
                                               high_price=df.high,
@@ -190,10 +171,8 @@ class TestTripleBarrier:
 
     def test_time_barrier_stop_loss_hit_short(self, prepare_price_data):
         """
-        Test no take profit  (stop loss, time barrier, dynamic exit), short trade
-        with stop_loss hit
-        :param prepare_price_data:
-        :return:
+            Test no take profit barrier for a short trade that hits stop loss barrier, with take profit
+            distance in pips.
         """
         df = prepare_price_data
         barrier_builder = MultiBarrierBuilder(open_price=df.open,
@@ -212,39 +191,28 @@ class TestTripleBarrier:
         assert barrier_builder.multi_barrier.first_hit.level == 1.06759
         assert barrier_builder.multi_barrier.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
-    def test_use_in_pandas_apply(self, prepare_price_data):
+    def test_sl_tp_levels_long(self, prepare_price_data):
+        """
+            Test full barrier for a long trade that hits take profit, with stop loss and take profit
+            price levels
+        """
         df = prepare_price_data
+        barrier_builder = MultiBarrierBuilder(open_price=df.open,
+                                              high_price=df.high,
+                                              low_price=df.low,
+                                              close_price=df.close,
+                                              trade_open_datetime="2023-01-02 20:45:00",
+                                              take_profit_pips=1.06759,
+                                              stop_loss_pips=5,
+                                              trade_side=TradeSide.BUY,
+                                              pip_decimal_position=4,
+                                              time_barrier_periods=10,
+                                              dynamic_exit=df.exit)
 
-        def calculate_exit(row: any,
-                           ohlc: pd.DataFrame,
-                           stop_loss_width: float,
-                           take_profit_width: float,
-                           trade_side: TradeSide,
-                           pip_decimal_position: int,
-                           time_barrier_periods: int):
-            barrier_builder = MultiBarrierBuilder(open_price=ohlc.open,
-                                                  high_price=ohlc.high,
-                                                  low_price=ohlc.low,
-                                                  close_price=ohlc.close,
-                                                  trade_open_datetime=str(row.name),
-                                                  stop_loss_pips=stop_loss_width,
-                                                  take_profit_pips=take_profit_width,
-                                                  trade_side=trade_side,
-                                                  pip_decimal_position=pip_decimal_position,
-                                                  time_barrier_periods=time_barrier_periods,
-                                                  dynamic_exit=ohlc.exit)
-            barrier_builder.compute()
-
-            row["close-price"] = barrier_builder.multi_barrier.first_hit.level
-            row["close-datetime"] = barrier_builder.multi_barrier.first_hit.hit_datetime
-            row["close-type"] = barrier_builder.multi_barrier.first_hit.barrier_type.value
-
-            return row
-
-        entry = df[(df.entry == 1)]
-        entry = entry.apply(calculate_exit, args=(entry, 5, 10, TradeSide.BUY, 4, 10), axis=1)
-
-
+        barrier_builder.compute()
+        assert barrier_builder.multi_barrier.first_hit.barrier_type == BarrierType.TAKE_PROFIT
+        assert barrier_builder.multi_barrier.first_hit.level == 1.06759
+        assert barrier_builder.multi_barrier.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
 # TODO: Add more tests
 

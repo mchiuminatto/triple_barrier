@@ -175,6 +175,8 @@ class TakeProfit:
         self.barrier: Barrier = Barrier(barrier_type=BarrierType.TAKE_PROFIT,
                                         level=take_profit_level)
 
+        breakpoint()
+
     def _validate_barrier_parameters(self):
         if self._take_profit_width is not None and self._take_profit_level is not None:
             raise ValueError("Either take_profit_level or take_profit_with are allowed not both")
@@ -184,6 +186,7 @@ class TakeProfit:
         self._compute_next_take_profit_hit()
 
     def _compute_take_profit_level(self):
+        breakpoint()
         if self.barrier.level is None:
             barrier_level: float = self._trade_side.value * np.inf
             if self._take_profit_width is not None:
