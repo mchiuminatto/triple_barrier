@@ -4,3 +4,6 @@ linters:
 
 unit-test:
 	coverage run -m pytest ./tests/triple_barrier/unit/;
+
+integration-test:
+	pytest ./tests/triple_barrier/integration/;

@@ -8,5 +8,4 @@ HIGH = "high"
 LOW = "low"
 CLOSE = "close"
 
-INFINITE_DATE = datetime(datetime.now().year+1000, month=1, day=1)
-
+INFINITE_DATE = datetime(datetime.now().year + 1000, month=1, day=1)
