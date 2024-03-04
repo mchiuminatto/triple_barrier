@@ -177,7 +177,6 @@ class TakeProfit:
         self.barrier: Barrier = Barrier(barrier_type=BarrierType.TAKE_PROFIT,
                                         level=take_profit_level)
 
-
     def _validate_barrier_parameters(self):
         if self._take_profit_width is not None and self._take_profit_level is not None:
             raise ValueError("Either take_profit_level or take_profit_with are allowed not both")
@@ -260,7 +259,7 @@ class StopLoss:
             barrier_level: float = -self._trade_side.value * np.inf
             if self._stop_loss_width is not None:
                 pip_factor: float = 10 ** (-self._pip_decimal_position)
-                stop_loss_width_decimal: float = self._stop_loss_width*pip_factor
+                stop_loss_width_decimal: float = self._stop_loss_width * pip_factor
                 trade_open_price = self._open_price[self._open_datetime]
                 barrier_level = (trade_open_price - self._trade_side.value * stop_loss_width_decimal).round(
                     self._pip_decimal_position + 1)
@@ -358,4 +357,3 @@ class DynamicBarrier:
             hit_level = close_price[mask_exit].iloc[0]
 
         self.barrier.level = hit_level
-

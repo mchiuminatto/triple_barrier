@@ -1,3 +1,5 @@
+# TODO: Move all this logic to a single file
+
 import pandas as pd
 
 import matplotlib.pyplot as plt
