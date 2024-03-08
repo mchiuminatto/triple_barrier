@@ -28,11 +28,11 @@ class TradeSide(Enum):
 
 class MultiBarrier:
     def __init__(self) -> None:
-        self.barriers: list[Barrier] = []
-        self.first_hit: Barrier = Barrier()
+        self.barriers: list[BarrierHit] = []
+        self.first_hit: BarrierHit = BarrierHit()
 
 
-class Barrier:
+class BarrierHit:
 
     def __init__(self,
                  level: float | None = None,
@@ -138,7 +138,7 @@ class MultiBarrierBuilder:
         self.multi_barrier.barriers.append(dynamic_barrier.barrier)
 
     def select_first_hit(self):
-        first_hit: Barrier | None = None
+        first_hit: BarrierHit | None = None
         for barrier in self.multi_barrier.barriers:
             if first_hit is None:
                 first_hit = barrier
@@ -174,8 +174,8 @@ class TakeProfit:
 
         self._validate_barrier_parameters()
 
-        self.barrier: Barrier = Barrier(barrier_type=BarrierType.TAKE_PROFIT,
-                                        level=take_profit_level)
+        self.barrier: BarrierHit = BarrierHit(barrier_type=BarrierType.TAKE_PROFIT,
+                                              level=take_profit_level)
 
     def _validate_barrier_parameters(self):
         if self._take_profit_width is not None and self._take_profit_level is not None:
@@ -243,8 +243,8 @@ class StopLoss:
 
         self._validate_barrier_parameters()
 
-        self.barrier: Barrier = Barrier(barrier_type=BarrierType.STOP_LOSS,
-                                        level=stop_loss_level)
+        self.barrier: BarrierHit = BarrierHit(barrier_type=BarrierType.STOP_LOSS,
+                                              level=stop_loss_level)
 
     def _validate_barrier_parameters(self):
         if self._stop_loss_width is not None and self._stop_loss_level is not None:
@@ -296,7 +296,7 @@ class TimeBarrier:
         self.time_barrier_periods: int = time_barrier_periods
         self.open_datetime: str = open_datetime
 
-        self.barrier = Barrier(barrier_type=BarrierType.TIME_BARRIER)
+        self.barrier = BarrierHit(barrier_type=BarrierType.TIME_BARRIER)
 
     def compute(self):
         self._compute_hit_date_time()
@@ -332,7 +332,7 @@ class DynamicBarrier:
         self.open_datetime: str = open_datetime
         self.exit_signals: pd.Series = exit_signals
 
-        self.barrier: Barrier = Barrier(barrier_type=BarrierType.DYNAMIC)
+        self.barrier: BarrierHit = BarrierHit(barrier_type=BarrierType.DYNAMIC)
 
     def compute(self):
         self._compute_hit_datetime()

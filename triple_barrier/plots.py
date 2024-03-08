@@ -1,9 +1,13 @@
 # TODO: Move all this logic to a single file
 
+from datetime import datetime
 import pandas as pd
 
 import matplotlib.pyplot as plt
 import mplfinance as mpf
+
+from triple_barrier.triple_barrier import BarrierHit
+from triple_barrier import constants
 
 
 class PlotTripleBarrier:
@@ -14,7 +18,7 @@ class PlotTripleBarrier:
                  low_price: pd.Series,
                  close_price: pd.Series,
                  pip_decimal_position: int,
-                 overlay_features: list = None
+                 overlay_features: list | None = None
                  ):
 
         if overlay_features is None:
@@ -27,6 +31,7 @@ class PlotTripleBarrier:
                                     low_price,
                                     close_price)
         self.pip_factor = 10 ** (-pip_decimal_position)
+        self.barrier_lines: list | None = None
 
     @staticmethod
     def build_ohlc(open_price: pd.Series,
@@ -47,46 +52,36 @@ class PlotTripleBarrier:
              stop_loss_level: float,
              time_barrier_datetime: str,
              periods_to_plot: int = 50,
-             dynamic_exit_datetime: str = None
+             dynamic_exit_price: float | None = None,
+             closing_event: BarrierHit | None = None
              ):
 
-        date_from = pd.to_datetime(entry_period)
-        date_to = self.ohlc[entry_period:].index[periods_to_plot]
+        date_from: datetime = pd.to_datetime(entry_period)
+        date_to: datetime = self.ohlc[entry_period:].index[periods_to_plot]
 
         if len(self.ohlc[date_from: date_to]) == 0:
             raise ValueError("No data to process")
 
+        barrier: dict = {
+            constants.OPEN_PRICE: self.ohlc.loc[date_from]["open"],
+            constants.STOP_LOSS: stop_loss_level,
+            constants.TAKE_PROFIT: take_profit_level,
+            constants.DYNAMIC_CLOSE: dynamic_exit_price,
+            constants.TIME_LIMIT: pd.to_datetime(time_barrier_datetime),
+        }
+
         print("Plotting barrier for", len(self.ohlc[date_from: date_to]))
-
-        open_price: float = self.ohlc.loc[date_from]["open"]
-        stop_loss: float = stop_loss_level
-        take_profit: float = take_profit_level
-        time_limit = pd.to_datetime(time_barrier_datetime)
-
         plots: list = []
 
         for feature in self.overlay_features:
-            plots.append(mpf.make_addplot(feature[date_from:date_to], type="line", marker="8", label=feature.name))
+            plots.append(mpf.make_addplot(feature[date_from: date_to],
+                                          type="line",
+                                          marker="8",
+                                          label=feature.name)
+                         )
 
-        barrier_points = [
-            [(date_from, take_profit), (time_limit, take_profit)],
-            [(date_from, stop_loss), (time_limit, stop_loss)],
-            [(date_from, stop_loss), (date_from, take_profit)],
-            [(time_limit, stop_loss), (time_limit, take_profit)],
-            [(date_from, open_price), (time_limit, open_price)]
-        ]
-
-        colors: list = []
-        if take_profit > stop_loss:
-            colors = ["g", "r", "b", "b", "black"]
-        else:
-            colors = ["r", "g", "b", "b", "black"]
-
-        barrier_lines = dict(alines=barrier_points,
-                             linewidths=[0.5],
-                             colors=colors,
-                             linestyle=["-.", "-."],
-                             alpha=0.5)
+        # TODO: move this to a function and include dynamic barrier
+        barrier_lines = self._build_barrier_lines(date_from, date_to, barrier)
 
         mpf.plot(self.ohlc[date_from:date_to],
                  type="candle", figsize=(15, 4),
@@ -94,4 +89,44 @@ class PlotTripleBarrier:
                  alines=barrier_lines,
                  addplot=plots)
 
+        # TODO: Plot the barrier hit
+
         plt.show()
+
+        # TODO: store bninary image in a file to compare with a stored one for testing purposes
+
+    @staticmethod
+    def _build_barrier_lines(date_from: datetime,
+                            date_to: datetime,
+                            barrier: dict) -> dict:
+
+        take_profit: float = barrier[constants.TAKE_PROFIT]
+        stop_loss: float = barrier[constants.STOP_LOSS]
+        open_price: float = barrier[constants.OPEN_PRICE]
+        time_limit: datetime = barrier[constants.TIME_LIMIT]
+        dynamic_close: float = barrier[constants.DYNAMIC_CLOSE]
+
+        barrier_lines = [
+            [(date_from, take_profit), (time_limit, take_profit)],
+            [(date_from, stop_loss), (time_limit, stop_loss)],
+            [(date_from, stop_loss), (date_from, take_profit)],
+            [(time_limit, stop_loss), (time_limit, take_profit)],
+            [(date_from, open_price), (time_limit, open_price)],
+        ]
+        if dynamic_close is not None:
+            barrier_lines.append([(date_from, dynamic_close), (time_limit, dynamic_close)])
+
+        colors: list = []
+        if take_profit > stop_loss:
+            colors = ["g", "r", "b", "b", "black", "grey"]
+
+        else:
+            colors = ["r", "g", "b", "b", "black", "grey"]
+
+        barrier_lines = dict(alines=barrier_lines,
+                             linewidths=[0.5],
+                             colors=colors,
+                             linestyle=["-.", "-."],
+                             alpha=0.5)
+
+        return barrier_lines

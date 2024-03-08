@@ -5,6 +5,7 @@ from triple_barrier import constants
 from triple_barrier.plots import PlotTripleBarrier
 from triple_barrier.triple_barrier import TradeSide
 
+
 class TestPlots:
 
     def test_build_ohlc(self, prepare_price_data):
@@ -24,3 +25,14 @@ class TestPlots:
         assert (ohlc[constants.HIGH] - df[constants.HIGH]).sum() == 0
         assert (ohlc[constants.LOW] - df[constants.LOW]).sum() == 0
         assert (ohlc[constants.CLOSE] - df[constants.CLOSE]).sum() == 0
+
+
+    def test_plot(self):
+        # load a predefined image from disk
+
+        # plot the image and store it into memory
+
+        # compare loaded image with plotted one
+
+        ...
+
