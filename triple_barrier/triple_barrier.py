@@ -43,6 +43,9 @@ class BarrierHit:
         self.hit_datetime: datetime = hit_datetime
         self.barrier_type: BarrierType = barrier_type
 
+    def __str__(self):
+        return f"datetime: {self.hit_datetime}, level {self.level}, type {self.barrier_type.value}"
+
 
 class MultiBarrierBuilder:
 

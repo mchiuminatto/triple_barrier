@@ -27,12 +27,5 @@ class TestPlots:
         assert (ohlc[constants.CLOSE] - df[constants.CLOSE]).sum() == 0
 
 
-    def test_plot(self):
-        # load a predefined image from disk
 
-        # plot the image and store it into memory
-
-        # compare loaded image with plotted one
-
-        ...
 
