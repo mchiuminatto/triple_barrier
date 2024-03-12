@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import mplfinance as mpf
 
 from triple_barrier.triple_barrier import BarrierHit
+from triple_barrier.triple_barrier import MultiBarrierHit
+from triple_barrier.multi_barrier_box import MultiBarrierBox
 from triple_barrier import constants
 
 
@@ -48,15 +50,22 @@ class PlotTripleBarrier:
                             columns=["open", "high", "low", "close"])
         return ohlc
 
-    def plot(self,
-             entry_period: str,
-             take_profit_level: float,
-             stop_loss_level: float,
-             time_barrier_datetime: str,
-             periods_to_plot: int = 50,
-             dynamic_exit_price: float | None = None,
-             closing_event: BarrierHit | None = None
-             ):
+    def plot_multy_barrier(self,
+                           box_setup: MultiBarrierBox,
+                           multi_barrier_hit: MultiBarrierHit):
+        self._plot(box_setup.open_datetime,
+                   box_setup.take_profit)
+
+
+    def _plot(self,
+              entry_period: str,
+              take_profit_level: float,
+              stop_loss_level: float,
+              time_barrier_datetime: str,
+              periods_to_plot: int = 50,
+              dynamic_exit_price: float | None = None,
+              closing_event: BarrierHit | None = None
+              ):
 
         date_from: datetime = pd.to_datetime(entry_period)
         date_to: datetime = self.ohlc[entry_period:].index[periods_to_plot - 1]

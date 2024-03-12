@@ -1,9 +1,5 @@
-from dateutil import parser
-import pandas as pd
-
 from triple_barrier import constants
 from triple_barrier.plots import PlotTripleBarrier
-from triple_barrier.triple_barrier import TradeSide
 
 
 class TestPlots:
@@ -27,5 +23,5 @@ class TestPlots:
         assert (ohlc[constants.CLOSE] - df[constants.CLOSE]).sum() == 0
 
 
-
+# TODO: Add tests with asserts comparing images
 

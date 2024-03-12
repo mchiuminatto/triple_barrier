@@ -1,10 +1,15 @@
 import pandas as pd
 from triple_barrier.triple_barrier import (TradeSide,
-                                           MultiBarrierBuilder
+                                           MultiBarrier
                                            )
+from triple_barrier.multi_barrier_box import MultiBarrierParameters
 from triple_barrier import constants
 
 OUTPUT_FOLDER: str = f"{constants.ROOT_FOLDER}/tests/triple_barrier/integration/output/"
+STOP_LOSS_PIPS: float = 5
+TAKE_PROFIT_PIPS: float = 10
+INSTRUMENT_PIP_POSITION = 4
+TIME_LIMIT_PERIODS = 10
 
 
 class TestApplyCases:
@@ -24,17 +29,24 @@ class TestApplyCases:
                            trade_side: TradeSide,
                            pip_decimal_position: int,
                            time_barrier_periods: int):
-            barrier_builder = MultiBarrierBuilder(open_price=ohlc.open,
-                                                  high_price=ohlc.high,
-                                                  low_price=ohlc.low,
-                                                  close_price=ohlc.close,
-                                                  trade_open_datetime=str(row.name),
-                                                  stop_loss_pips=stop_loss_width,
-                                                  take_profit_pips=take_profit_width,
-                                                  trade_side=trade_side,
-                                                  pip_decimal_position=pip_decimal_position,
-                                                  time_barrier_periods=time_barrier_periods,
-                                                  dynamic_exit=ohlc.exit)
+
+            box_setup = MultiBarrierParameters()
+
+            box_setup.open_time = str(row.name)
+            box_setup.open_price = df.loc[box_setup.open_time]["open"]
+            box_setup.take_profit_width = take_profit_width
+            box_setup.stop_loss_width = stop_loss_width
+            box_setup.time_limit = df[box_setup.open_time:].index[time_barrier_periods]
+            box_setup.trade_side = trade_side
+            box_setup.pip_decimal_position = pip_decimal_position
+
+            barrier_builder = MultiBarrier(open_price=df.open,
+                                           high_price=df.high,
+                                           low_price=df.low,
+                                           close_price=df.close,
+                                           dynamic_exit=ohlc["exit"],
+                                           box_setup=box_setup
+                                           )
             barrier_builder.compute()
 
             row["close-price"] = barrier_builder.multi_barrier.first_hit.level
@@ -43,48 +55,37 @@ class TestApplyCases:
 
             return row
 
-        stop_loss_pips = 5
-        take_profit_pips = 10
         strategy_side = TradeSide.BUY
-        instrument_pip_position = 4
-        time_limit_periods = 10
-        pip_factor = 10 ** 4
 
         entry: pd.DataFrame = df[(df.entry == 1)].copy(deep=True)
         entry = entry.apply(calculate_exit,
-                            args=(entry,
-                                  stop_loss_pips,
-                                  take_profit_pips,
+                            args=(df,
+                                  STOP_LOSS_PIPS,
+                                  TAKE_PROFIT_PIPS,
                                   strategy_side,
-                                  instrument_pip_position,
-                                  time_limit_periods),
+                                  INSTRUMENT_PIP_POSITION,
+                                  TIME_LIMIT_PERIODS),
                             axis=1)
 
-        mask_take_profit_hits = entry["close-type"] == "take-profit"
-        sum_take_profit_hits = (
-                                       entry[mask_take_profit_hits]["close-price"] - entry[mask_take_profit_hits][
-                                   "open"]).sum() * pip_factor
-
-        mask_stop_loss_hits = entry["close-type"] == "stop-loss"
-        sum_stop_loss_hits = (
-                                     entry[mask_stop_loss_hits]["close-price"] - entry[mask_stop_loss_hits][
-                                 "open"]).sum() * pip_factor
-
-        assert {"close-price", "close-datetime", "close-type"}.issubset(entry.columns)
-        assert round(sum_take_profit_hits, 0) == 4870
-        assert round(sum_stop_loss_hits, 0) == -3110
+        entry["profit"] = entry["close-price"] - entry["open"]
+        grouped = entry.groupby("close-type")["profit"].sum()
 
         entry.to_parquet(f"{OUTPUT_FOLDER}base_case_long.parquet")
 
-    def test_base_case_short(self, prepare_price_data):
+        assert {"close-price", "close-datetime", "close-type"}.issubset(entry.columns)
+        assert round(grouped["dynamic"] * (10 ** INSTRUMENT_PIP_POSITION), 1) == -15.7
+        assert round(grouped["stop-loss"] * (10 ** INSTRUMENT_PIP_POSITION), 1) == -2345.0
+        assert round(grouped["take-profit"] * (10 ** INSTRUMENT_PIP_POSITION), 1) == 1490.0
+        assert round(grouped["time-barrier"] * (10 ** INSTRUMENT_PIP_POSITION), 1) == 682.0
+
+    def test_base_case_short(self, prepare_price_data_short):
         """
+        Base case long:
 
-        Base case short
-
-        Short trade setup passing fix take profit, stop loss levels, and time barrier limit
+        Long trade setup passing fix take profit, stop loss levels, and time barrier limit
 
         """
-        df = prepare_price_data
+        df = prepare_price_data_short
 
         def calculate_exit(row: any,
                            ohlc: pd.DataFrame,
@@ -93,17 +94,24 @@ class TestApplyCases:
                            trade_side: TradeSide,
                            pip_decimal_position: int,
                            time_barrier_periods: int):
-            barrier_builder = MultiBarrierBuilder(open_price=ohlc.open,
-                                                  high_price=ohlc.high,
-                                                  low_price=ohlc.low,
-                                                  close_price=ohlc.close,
-                                                  trade_open_datetime=str(row.name),
-                                                  stop_loss_pips=stop_loss_width,
-                                                  take_profit_pips=take_profit_width,
-                                                  trade_side=trade_side,
-                                                  pip_decimal_position=pip_decimal_position,
-                                                  time_barrier_periods=time_barrier_periods,
-                                                  dynamic_exit=ohlc.exit)
+
+            box_setup = MultiBarrierParameters()
+
+            box_setup.open_time = str(row.name)
+            box_setup.open_price = df.loc[box_setup.open_time]["open"]
+            box_setup.take_profit_width = take_profit_width
+            box_setup.stop_loss_width = stop_loss_width
+            box_setup.time_limit = df[box_setup.open_time:].index[time_barrier_periods]
+            box_setup.trade_side = trade_side
+            box_setup.pip_decimal_position = pip_decimal_position
+
+            barrier_builder = MultiBarrier(open_price=df.open,
+                                           high_price=df.high,
+                                           low_price=df.low,
+                                           close_price=df.close,
+                                           dynamic_exit=ohlc["exit"],
+                                           box_setup=box_setup
+                                           )
             barrier_builder.compute()
 
             row["close-price"] = barrier_builder.multi_barrier.first_hit.level
@@ -112,96 +120,25 @@ class TestApplyCases:
 
             return row
 
-        stop_loss_pips = 5
-        take_profit_pips = 10
         strategy_side = TradeSide.SELL
-        instrument_pip_position = 4
-        time_limit_periods = 10
-        pip_factor = 10 ** 4
 
         entry: pd.DataFrame = df[(df.entry == 1)].copy(deep=True)
         entry = entry.apply(calculate_exit,
-                            args=(entry,
-                                  stop_loss_pips,
-                                  take_profit_pips,
+                            args=(df,
+                                  STOP_LOSS_PIPS,
+                                  TAKE_PROFIT_PIPS,
                                   strategy_side,
-                                  instrument_pip_position,
-                                  time_limit_periods),
+                                  INSTRUMENT_PIP_POSITION,
+                                  TIME_LIMIT_PERIODS),
                             axis=1)
 
-        mask_take_profit_hits = entry["close-type"] == "take-profit"
-        sum_take_profit_hits = (
-                                       entry[mask_take_profit_hits]["open"] - entry[mask_take_profit_hits][
-                                   "close-price"]).sum() * pip_factor
-
-        mask_stop_loss_hits = entry["close-type"] == "stop-loss"
-        sum_stop_loss_hits = (
-                                     entry[mask_stop_loss_hits]["open"] - entry[mask_stop_loss_hits][
-                                 "close-price"]).sum() * pip_factor
-
-        assert {"close-price", "close-datetime", "close-type"}.issubset(entry.columns)
-        assert round(sum_take_profit_hits, 0) == 4280
-        assert round(sum_stop_loss_hits, 0) == -3405
+        entry["profit"] = (entry["open"] - entry["close-price"])*10**INSTRUMENT_PIP_POSITION
+        grouped = entry.groupby("close-type")["profit"].sum()
 
         entry.to_parquet(f"{OUTPUT_FOLDER}base_case_short.parquet")
 
-    def test_dynamic_stop_loss_case_long(self, prepare_price_data):
-        """
-
-        Alternative case: dynamic stop loss long
-
-        Short trade setup passing fix take profit, stop loss levels, and time barrier limit
-
-        """
-        df = prepare_price_data
-
-        def calculate_exit(row: any,
-                           ohlc: pd.DataFrame,
-                           take_profit_width: float,
-                           trade_side: TradeSide,
-                           pip_decimal_position: int,
-                           time_barrier_periods: int):
-            barrier_builder = MultiBarrierBuilder(open_price=ohlc.open,
-                                                  high_price=ohlc.high,
-                                                  low_price=ohlc.low,
-                                                  close_price=ohlc.close,
-                                                  trade_open_datetime=str(row.name),
-                                                  stop_loss_level=row["mva-24"],
-                                                  take_profit_pips=take_profit_width,
-                                                  trade_side=trade_side,
-                                                  pip_decimal_position=pip_decimal_position,
-                                                  time_barrier_periods=time_barrier_periods,
-                                                  dynamic_exit=ohlc.exit)
-            barrier_builder.compute()
-
-            row["close-price"] = barrier_builder.multi_barrier.first_hit.level
-            row["close-datetime"] = barrier_builder.multi_barrier.first_hit.hit_datetime
-            row["close-type"] = barrier_builder.multi_barrier.first_hit.barrier_type.value
-
-            return row
-
-        take_profit_pips = 10
-        strategy_side = TradeSide.BUY
-        instrument_pip_position = 4
-        time_limit_periods = 10
-        pip_factor = 10 ** 4
-
-        entry: pd.DataFrame = df[(df.entry == 1)].copy(deep=True)
-        entry = entry.apply(calculate_exit,
-                            args=(entry,
-                                  take_profit_pips,
-                                  strategy_side,
-                                  instrument_pip_position,
-                                  time_limit_periods),
-                            axis=1)
-
-        mask_stop_loss_hits = entry["close-type"] == "stop-loss"
-        sum_diff_sl = (entry[mask_stop_loss_hits]["mva-24"] - entry[mask_stop_loss_hits][
-            "close-price"]).sum()
-
         assert {"close-price", "close-datetime", "close-type"}.issubset(entry.columns)
-        assert sum_diff_sl == 0
-
-        entry.to_parquet(f"{OUTPUT_FOLDER}alternative_case_dynamic_stop_loss_long.parquet")
-
-
+        assert round(grouped["dynamic"] * (10 ** INSTRUMENT_PIP_POSITION), 1) == -15.7
+        assert round(grouped["stop-loss"] * (10 ** INSTRUMENT_PIP_POSITION), 1) == -2345.0
+        assert round(grouped["take-profit"] * (10 ** INSTRUMENT_PIP_POSITION), 1) == 1490.0
+        assert round(grouped["time-barrier"] * (10 ** INSTRUMENT_PIP_POSITION), 1) == 682.0
