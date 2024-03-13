@@ -7,3 +7,7 @@ unit-test:
 
 integration-test:
 	pytest ./tests/triple_barrier/integration/;
+
+build:
+	python -m build;
+	twine upload ./dist/*
