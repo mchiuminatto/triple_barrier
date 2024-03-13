@@ -43,6 +43,19 @@ class MultiBarrierBox:
         self.time_limit: datetime = time_limit
         self.pip_decimal_position = pip_decimal_position
 
+    def __str__(self):
+        output: str = f"""
+        Open datetime: {self.open_datetime}
+        Open price: {self.open_price}
+        Stop loss: {self.stop_loss}
+        Take profit : {self.take_profit}
+        Trade side: {self.trade_side}
+        Time limit: {self.time_limit}
+        Pip position: {self.pip_decimal_position} 
+        """
+
+        return output
+
 
 class BoxBuilder:
 

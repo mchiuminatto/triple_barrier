@@ -33,7 +33,12 @@ class BarrierHit:
         self.barrier_type: BarrierType = barrier_type
 
     def __str__(self):
-        return f"datetime: {self.hit_datetime}, level {self.level}, type {self.barrier_type.value}"
+        output: str = f"""
+        Datetime: {self.hit_datetime} 
+        Level: {self.level} 
+        Type: {self.barrier_type.value}
+        """
+        return output
 
 
 class MultiBarrierHit:
