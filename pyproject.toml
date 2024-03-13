@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "triple-barrier"
-version = "0.2.0rc"
+version = "0.3.0rc"
 authors = [
     {name="Marcello Chiuminatto", email="mch@thequantick.net"},
 ]

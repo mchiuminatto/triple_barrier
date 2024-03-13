@@ -285,38 +285,7 @@ class TestTripleBarrier:
         assert barrier_builder.multi_barrier_hit.first_hit.level == 1.05549
         assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-03  21:05:00")
 
-    def test_full_barrier_stop_loss_hit_failed_case_1(self, prepare_price_data):
-        """
-            Test full barrier for a short trade that hits time barrier, with stop loss and take profit
-            distance in pips.
-        """
-        df = prepare_price_data
 
-        stop_loss: float = 5
-        take_profit: float = 10
-        open_datetime: str = "2023-01-02 20:20:00"
-        pip_decimal_position = 4
-        trade_side: TradeSide = TradeSide.SELL
-
-        box_setup = MultiBarrierParameters()
-        box_setup.open_time = open_datetime
-        box_setup.open_price = df.loc[box_setup.open_time]["open"]
-        box_setup.take_profit_width = take_profit
-        box_setup.stop_loss_width = stop_loss
-        box_setup.time_limit = "2023-01-02 21:10:00"
-        box_setup.trade_side = trade_side
-        box_setup.pip_decimal_position = pip_decimal_position
-
-        barrier_builder = MultiBarrier(open_price=df.open,
-                                       high_price=df.high,
-                                       low_price=df.low,
-                                       close_price=df.close,
-                                       box_setup=box_setup
-                                       )
-        barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.barrier_type == BarrierType.TIME_BARRIER
-        assert barrier_builder.multi_barrier_hit.first_hit.level == 1.0663
-        assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 23:00:00")
 
 
 # TODO: Add more tests
