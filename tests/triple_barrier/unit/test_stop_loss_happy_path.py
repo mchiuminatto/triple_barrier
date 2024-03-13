@@ -1,8 +1,6 @@
-
 from dateutil import parser
-from triple_barrier.triple_barrier import (TradeSide,
-                                           StopLoss,
-                                           )
+from triple_barrier.triple_barrier import StopLoss
+from triple_barrier.multi_barrier_types import TradeSide
 
 
 class TestStopLoss:
@@ -18,7 +16,7 @@ class TestStopLoss:
                                      open_datetime=trade_open_datetime,
                                      trade_side=TradeSide.BUY,
                                      pip_decimal_position=4,
-                                     stop_loss_width=5
+                                     stop_loss=1.06697
                                      )
 
         stop_loss_barrier.compute()
@@ -37,7 +35,7 @@ class TestStopLoss:
                                      open_datetime=trade_open_datetime,
                                      trade_side=TradeSide.SELL,
                                      pip_decimal_position=4,
-                                     stop_loss_width=5
+                                     stop_loss=1.05535
                                      )
 
         stop_loss_barrier.compute()
