@@ -10,4 +10,7 @@ integration-test:
 
 build:
 	python -m build;
-	twine upload ./dist/*
+	twine upload ./dist/*;
+
+reverse:
+	pyreverse -o png ./strategy;
