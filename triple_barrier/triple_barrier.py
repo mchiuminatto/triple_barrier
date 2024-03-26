@@ -83,7 +83,7 @@ class MultiBarrier:
         self.multi_barrier_hit.barriers.append(time_barrier.barrier)
 
     def _compute_dynamic_barrier(self):
-        dynamic_barrier: DynamicBarrier = DynamicBarrier(close_price=self.close,
+        dynamic_barrier: DynamicBarrier = DynamicBarrier(open_price=self.open,
                                                          exit_signals=self.dynamic_exit,
                                                          open_datetime=self.multi_barrier_box.open_datetime
                                                          )
@@ -224,11 +224,11 @@ class TimeBarrier:
 class DynamicBarrier:
 
     def __init__(self,
-                 close_price: pd.Series,
+                 open_price: pd.Series,
                  exit_signals: pd.Series,
                  open_datetime: datetime,
                  ):
-        self.close_price = close_price
+        self.open_price = open_price
         self.open_datetime: datetime = open_datetime
         self.exit_signals: pd.Series = exit_signals
 
@@ -251,9 +251,10 @@ class DynamicBarrier:
     def _compute_hit_level(self):
         hit_level: float = np.inf
         if self.barrier.hit_datetime != constants.INFINITE_DATE:
-            close_price: pd.Series = self.close_price[self.open_datetime:]
+            open_price: pd.Series = self.open_price[self.open_datetime:]
             trade_exit_signals: pd.Series = self.exit_signals[self.open_datetime:]
             mask_exit = trade_exit_signals == 1
-            hit_level = close_price[mask_exit].iloc[0]
+            hit_trigger_date: datetime = open_price[mask_exit].index[0]
+            hit_level = open_price[hit_trigger_date:].iloc[1]
 
         self.barrier.level = hit_level
