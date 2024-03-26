@@ -9,7 +9,7 @@ integration-test:
 	pytest ./tests/triple_barrier/integration/;
 
 build:
-    rm ./dist/*;
+	rm ./dist/*;
 	python -m build;
 	twine upload ./dist/*;
 
