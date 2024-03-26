@@ -43,7 +43,7 @@ class TestApplyCases:
         assert round(grouped["dynamic"], 1) == -15.7
         assert round(grouped["stop-loss"], 1) == -2345.0
         assert round(grouped["take-profit"], 1) == 1490.0
-        assert round(grouped["time-barrier"], 1) == 682.0
+        assert round(grouped["time-barrier"], 1) == 678.7
 
     def test_base_case_short(self, prepare_price_data_short):
         """
@@ -75,7 +75,7 @@ class TestApplyCases:
         assert round(grouped["dynamic"], 1) == -55.3
         assert round(grouped["stop-loss"], 1) == -2410.0
         assert round(grouped["take-profit"], 1) == 1710.0
-        assert round(grouped["time-barrier"], 1) == 688.9
+        assert round(grouped["time-barrier"], 1) == 694.0
 
 
 def calculate_exit(row: any,

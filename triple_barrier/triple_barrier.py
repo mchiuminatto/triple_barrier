@@ -75,7 +75,7 @@ class MultiBarrier:
         self.multi_barrier_hit.barriers.append(stop_loss_barrier.barrier)
 
     def _compute_time_barrier(self):
-        time_barrier: TimeBarrier = TimeBarrier(close_price=self.close,
+        time_barrier: TimeBarrier = TimeBarrier(open_price=self.open,
                                                 time_limit_date=self.multi_barrier_box.time_limit,
                                                 open_datetime=self.multi_barrier_box.open_datetime
                                                 )
@@ -200,10 +200,10 @@ class TimeBarrier:
     # TODO: deal with no time barrier
     # TODO: deal with time barrier beyond last time series date
     def __init__(self,
-                 close_price: pd.Series,
+                 open_price: pd.Series,
                  time_limit_date: datetime,
                  open_datetime: datetime):
-        self.close_price: pd.Series = close_price
+        self.open_price: pd.Series = open_price
         self.open_datetime: datetime = open_datetime
 
         self.barrier = BarrierHit(barrier_type=BarrierType.TIME_BARRIER, hit_datetime=time_limit_date)
@@ -214,9 +214,9 @@ class TimeBarrier:
     def _compute_hit_level(self):
         hit_level: float = np.inf
 
-        close_price = self.close_price[self.open_datetime:]
+        open_price = self.open_price[self.open_datetime:]
         if self.barrier.hit_datetime != constants.INFINITE_DATE:
-            hit_level = close_price[self.barrier.hit_datetime]
+            hit_level = open_price[self.barrier.hit_datetime:].iloc[1]
 
         self.barrier.level = hit_level
 

@@ -162,3 +162,6 @@ cython_debug/
 
 tests/triple_barrier/integration/output/
 docs/.$models.drawio.dtmp
+
+# Images
+*.png
