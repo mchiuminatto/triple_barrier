@@ -164,4 +164,4 @@ tests/triple_barrier/integration/output/
 docs/.$models.drawio.dtmp
 
 # Images
-*.png
+/*.png
