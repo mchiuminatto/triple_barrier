@@ -1,6 +1,6 @@
 linters:
-	pylint ./triple_barrier/*.py;
-	pylint ./tests/triple_barrier/*.py;
+	flake8 ./triple_barrier/*.py;
+	flake8 ./tests/triple_barrier/*.py;
 
 unit-test:
 	coverage run -m pytest ./tests/triple_barrier/unit/;

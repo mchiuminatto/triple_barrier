@@ -128,9 +128,9 @@ class PlotTripleBarrier:
 
         # move this logic to a function that returns the make_addplot object
         self.ohlc["temp-dynamic"] = np.nan
-        high = self.ohlc.loc[closing_event.hit_datetime, "high"] + (
-                self.ohlc.loc[closing_event.hit_datetime, "high"] -
-                self.ohlc.loc[closing_event.hit_datetime, "low"]) * 1.05
+        high = (self.ohlc.loc[closing_event.hit_datetime, "high"] +
+                (self.ohlc.loc[closing_event.hit_datetime, "high"] -
+                 self.ohlc.loc[closing_event.hit_datetime, "low"]) * 1.05)
         self.ohlc.loc[closing_event.hit_datetime, "temp-dynamic"] = high
 
         return mpf.make_addplot(self.ohlc[date_from: date_to]["temp-dynamic"],
@@ -154,11 +154,11 @@ class PlotTripleBarrier:
         top_line_level: float = max(take_profit, stop_loss, -float("inf") if dynamic_close is None else dynamic_close)
         bottom_line_level: float = min(take_profit, stop_loss, float("inf") if dynamic_close is None else dynamic_close)
 
-        take_profit_line: list[tuple, tuple] = [(date_from, take_profit), (time_limit, take_profit)]
-        stop_loss_line: list[tuple, tuple] = [(date_from, stop_loss), (time_limit, stop_loss)]
-        open_vertical_line: list[tuple, tuple] = [(date_from, bottom_line_level), (date_from, top_line_level)]
-        time_barrier_vertical_line: list[tuple, tuple] = [(time_limit, bottom_line_level), (time_limit, top_line_level)]
-        open_line: list[tuple, tuple] = [(date_from, open_price), (time_limit, open_price)]
+        take_profit_line: list = [(date_from, take_profit), (time_limit, take_profit)]
+        stop_loss_line: list = [(date_from, stop_loss), (time_limit, stop_loss)]
+        open_vertical_line: list = [(date_from, bottom_line_level), (date_from, top_line_level)]
+        time_barrier_vertical_line: list = [(time_limit, bottom_line_level), (time_limit, top_line_level)]
+        open_line: list = [(date_from, open_price), (time_limit, open_price)]
 
         barrier_lines = [
             take_profit_line,
@@ -193,7 +193,6 @@ class PlotTripleBarrier:
                 "backgroundcolor": "white"
                 }
 
-        last_index: int = self.ohlc.index.get_loc(barrier[constants.TIME_LIMIT])
         time_limit_index = self.ohlc[date_from:date_to].index.get_loc(barrier[constants.TIME_LIMIT]) + 1
         axis[0].text(time_limit_index,
                      barrier[constants.OPEN_PRICE],

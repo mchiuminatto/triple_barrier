@@ -34,8 +34,8 @@ class BarrierHit:
 
     def __str__(self):
         output: str = f"""
-        Datetime: {self.hit_datetime} 
-        Level: {self.level} 
+        Datetime: {self.hit_datetime}
+        Level: {self.level}
         Type: {self.barrier_type.value}
         """
         return output
