@@ -34,7 +34,6 @@ class MultiBarrierBox:
                  time_limit: datetime,
                  pip_decimal_position: int
                  ):
-
         self.open_datetime: datetime = open_datetime
         self.open_price: float = open_price
         self.stop_loss: float = stop_loss
@@ -51,7 +50,7 @@ class MultiBarrierBox:
         Take profit : {self.take_profit}
         Trade side: {self.trade_side}
         Time limit: {self.time_limit}
-        Pip position: {self.pip_decimal_position} 
+        Pip position: {self.pip_decimal_position}
         """
 
         return output
@@ -113,7 +112,7 @@ class BoxBuilder:
         if pip_decimal_position is None:
             raise ValueError("You need to specify pip_factor")
         if stop_loss_width is not None:
-            self._stop_loss = open_price - trade_side.value*stop_loss_width*(10**-pip_decimal_position)
+            self._stop_loss = open_price - trade_side.value * stop_loss_width * (10 ** -pip_decimal_position)
         elif stop_loss_level is not None:
             self._stop_loss = stop_loss_level
         else:
@@ -132,7 +131,7 @@ class BoxBuilder:
             raise ValueError("You need to specify pip_decimal_position")
 
         if take_profit_width is not None:
-            self._take_profit = open_price + trade_side.value*take_profit_width*(10**-pip_decimal_position)
+            self._take_profit = open_price + trade_side.value * take_profit_width * (10 ** -pip_decimal_position)
         elif take_profit_level is not None:
             self._take_profit = take_profit_level
         else:
@@ -149,6 +148,5 @@ class BoxBuilder:
         self._time_limit = pd.to_datetime(time_limit_datetime)
 
     def pip_decimal_position(self, pip_decimal_position: int):
+
         self._pip_decimal_position = pip_decimal_position
-
-

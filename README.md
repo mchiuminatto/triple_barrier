@@ -4,7 +4,7 @@ This is a work in progress DO NOT USE IT FOR PRODUCTION PURPOSES
 
 # Overview
 
-Triple Barrier is a trade labeler that con be used in the context of back-testing or machine learning trading and
+Triple Barrier is a trade labeler that can be used in the context of back-testing or machine learning trading and
 validating process. It records for each trade when, at what price level and why a trade was closed.
 
 ![](./docs/images/trades-table.png)
@@ -23,12 +23,12 @@ Other features:
 
 This project emerges from repeated trading strategy back-testing process where I was caught again and again copying and
 pasting from previous pipelines the code to perform a vectorized (semi-vectorized to be more accurate) labeling of
-trades. To avoid this DRY routine is that I decide to move this code to a library.
+trades. To avoid this DRY (Do not Repeat Yourself) routine, is that I decided to move this code to a library.
 
-The name and core idea is inspired in an algorithm found in the book: Advances in Financial Machine Learning, by Marcos
+The name and core idea are inspired in an algorithm found in the book: Advances in Financial Machine Learning, by Marcos
 Lopez de Prado.
 
-Before going moving further into library details a little bit of context.
+Before moving further into the library details a little bit of context.
 
 ### Trading Strategies
 
@@ -41,21 +41,19 @@ Depending on the trading strategy, after a position is opened, four events will 
    Order)
 3. Expiration time reached: The position has reached a specific expiration time (Good Til Time or GTT orders)
 4. A custom condition: Any custom condition that can maximize the position profit. These conditions depend on price
-   action whuile the position is opened
+   action while the position is opened
 
 ![](./docs/images/triple-barrier-long.png)
 
 To determine if strategy is potentially profitable before live trading, it is necessary to collect a large sample of
-trades to
-analyze the effectiveness of the strategy in terms of profits, mean profits, profits distributions, draw-downs or any
-metric you prefer.
+trades to analyze the effectiveness of the strategy in terms of profits, mean profits, profits distributions, drawdowns
+or any metric you prefer.
 
 Doing this analysis process manually is not recommended at all, considering the amount of data you need to analyze, the
 volume of trades required to determine if the strategy is significantly profitable and the human error, to name a few
-reasons. Suppose you have
-ten trading strategy models, each one with ten permutations of parameter values (this can lead to over-fitting, I know)
-and
-suppose you want to collect samples over ten years at a frequency (time-frame) of 5 minutes, impossible, isn't it?
+reasons. Suppose you have ten trading strategy models, each one with ten permutations of parameter values (this can lead
+to overfitting, I know) and suppose you want to collect samples over ten years at a frequency (time-frame) of 
+5 minutes, impossible, isn't it?
 
 ## Enter Algorithmic Trading
 
@@ -66,7 +64,8 @@ But before running live a trading algorithm that implements a trading model you 
 analyze the algorithm behavior on historic data to understand whether the algorithm is able to generalize and
 potentially behave similarly on unseen or future data, this process is called back-testing.
 
-Is in back-testing where you need to identify: when positions where opened, when and why they were closed.
+Is in back-testing where you need to identify: when positions were opened, when and why they were closed, so you can 
+calculate profit/loss and any performance metrics you need. 
 
 ## Enter Triple Barrier
 
@@ -83,7 +82,6 @@ Or to this Jupyter Notebook that combines triple barrier calculation with plotti
 
 [Triple Barrier Jupyter Notebook](./docs/plot-method-tests.ipynb)
 
-In the future extensive amount of examples will be used.
 
 ### How to install
 
@@ -92,6 +90,13 @@ As of now, the latest version (Release candidate) is 0.4.1rc and can be installe
 ```commandline
 pip install triple-barrier==0.4.2rc0
 ```
+
+### Examples
+
+To use Triple Barrier with pandas apply function, you need to build include this function:
+
+
+
 
 # References
 

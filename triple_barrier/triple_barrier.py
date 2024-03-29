@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 
 import pandas as pd
 import numpy as np
@@ -36,6 +35,41 @@ class MultiBarrier:
 
         self.multi_barrier_hit: MultiBarrierHit = MultiBarrierHit()
 
+        self._take_profit_barrier: TakeProfit | None = None
+        self._stop_loss_barrier: StopLoss | None = None
+        self._time_barrier: TimeBarrier | None = None
+        self._dynamic_barrier: DynamicBarrier | None = None
+
+        self._do_initializations()
+
+    def _do_initializations(self):
+        self._take_profit_barrier = TakeProfit(open_price=self.open,
+                                               high_price=self.high,
+                                               low_price=self.low,
+                                               close_price=self.close,
+                                               open_datetime=self.multi_barrier_box.open_datetime,
+                                               trade_side=self.multi_barrier_box.trade_side,
+                                               pip_decimal_position=self.multi_barrier_box.pip_decimal_position,
+                                               take_profit=self.multi_barrier_box.take_profit
+                                               )
+        self._stop_loss_barrier = StopLoss(open_price=self.open,
+                                           high_price=self.high,
+                                           low_price=self.low,
+                                           close_price=self.close,
+                                           open_datetime=self.multi_barrier_box.open_datetime,
+                                           trade_side=self.multi_barrier_box.trade_side,
+                                           pip_decimal_position=self.multi_barrier_box.pip_decimal_position,
+                                           stop_loss=self.multi_barrier_box.stop_loss
+                                           )
+        self._time_barrier = TimeBarrier(open_price=self.open,
+                                         time_limit_date=self.multi_barrier_box.time_limit,
+                                         open_datetime=self.multi_barrier_box.open_datetime
+                                         )
+        self._dynamic_barrier = DynamicBarrier(open_price=self.open,
+                                               exit_signals=self.dynamic_exit,
+                                               open_datetime=self.multi_barrier_box.open_datetime
+                                               )
+
     def compute(self):
         try:
             self._compute_take_profit_barrier()
@@ -49,46 +83,24 @@ class MultiBarrier:
             raise Exception(str(error_instance))
 
     def _compute_take_profit_barrier(self):
-        take_profit_barrier: TakeProfit = TakeProfit(open_price=self.open,
-                                                     high_price=self.high,
-                                                     low_price=self.low,
-                                                     close_price=self.close,
-                                                     open_datetime=self.multi_barrier_box.open_datetime,
-                                                     trade_side=self.multi_barrier_box.trade_side,
-                                                     pip_decimal_position=self.multi_barrier_box.pip_decimal_position,
-                                                     take_profit=self.multi_barrier_box.take_profit
-                                                     )
-        take_profit_barrier.compute()
-        self.multi_barrier_hit.barriers.append(take_profit_barrier.barrier)
+
+        self._take_profit_barrier.compute()
+        self.multi_barrier_hit.barriers.append(self._take_profit_barrier.barrier)
 
     def _compute_stop_loss_barrier(self):
-        stop_loss_barrier: StopLoss = StopLoss(open_price=self.open,
-                                               high_price=self.high,
-                                               low_price=self.low,
-                                               close_price=self.close,
-                                               open_datetime=self.multi_barrier_box.open_datetime,
-                                               trade_side=self.multi_barrier_box.trade_side,
-                                               pip_decimal_position=self.multi_barrier_box.pip_decimal_position,
-                                               stop_loss=self.multi_barrier_box.stop_loss
-                                               )
-        stop_loss_barrier.compute()
-        self.multi_barrier_hit.barriers.append(stop_loss_barrier.barrier)
+
+        self._stop_loss_barrier.compute()
+        self.multi_barrier_hit.barriers.append(self._stop_loss_barrier.barrier)
 
     def _compute_time_barrier(self):
-        time_barrier: TimeBarrier = TimeBarrier(open_price=self.open,
-                                                time_limit_date=self.multi_barrier_box.time_limit,
-                                                open_datetime=self.multi_barrier_box.open_datetime
-                                                )
-        time_barrier.compute()
-        self.multi_barrier_hit.barriers.append(time_barrier.barrier)
+
+        self._time_barrier.compute()
+        self.multi_barrier_hit.barriers.append(self._time_barrier.barrier)
 
     def _compute_dynamic_barrier(self):
-        dynamic_barrier: DynamicBarrier = DynamicBarrier(open_price=self.open,
-                                                         exit_signals=self.dynamic_exit,
-                                                         open_datetime=self.multi_barrier_box.open_datetime
-                                                         )
-        dynamic_barrier.compute()
-        self.multi_barrier_hit.barriers.append(dynamic_barrier.barrier)
+
+        self._dynamic_barrier.compute()
+        self.multi_barrier_hit.barriers.append(self._dynamic_barrier.barrier)
 
     def _select_first_hit(self):
         first_hit: BarrierHit | None = None
