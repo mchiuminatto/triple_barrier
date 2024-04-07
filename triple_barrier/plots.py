@@ -8,8 +8,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import mplfinance as mpf
 
-from triple_barrier.trade_labeler import BarrierHit
-from triple_barrier.trade_labeler import MultiBarrier
+from triple_barrier.trade_labeling import OrderHit
+from triple_barrier.trade_labeling import Labeler
 
 from triple_barrier import constants
 
@@ -54,7 +54,7 @@ class PlotTripleBarrier:
         return ohlc
 
     def plot_multi_barrier(self,
-                           multi_barrier: MultiBarrier):
+                           multi_barrier: Labeler):
         self._plot(
             entry_period=multi_barrier.multi_barrier_box.open_datetime,
             take_profit_level=multi_barrier.multi_barrier_box.take_profit,
@@ -72,7 +72,7 @@ class PlotTripleBarrier:
               time_barrier_datetime: datetime,
               periods_to_plot: int = 50,
               dynamic_exit_price: float | None = None,
-              closing_event: BarrierHit | None = None
+              closing_event: OrderHit | None = None
               ):
 
         date_from: datetime = entry_period
@@ -124,7 +124,7 @@ class PlotTripleBarrier:
     def _add_closing_event_hit(self,
                                date_from: datetime,
                                date_to: datetime,
-                               closing_event: BarrierHit) -> dict:
+                               closing_event: OrderHit) -> dict:
 
         # move this logic to a function that returns the make_addplot object
         self.ohlc["temp-dynamic"] = np.nan
