@@ -8,8 +8,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import mplfinance as mpf
 
-from triple_barrier.triple_barrier import BarrierHit
-from triple_barrier.triple_barrier import MultiBarrier
+from triple_barrier.trade_labeler import BarrierHit
+from triple_barrier.trade_labeler import MultiBarrier
 
 from triple_barrier import constants
 

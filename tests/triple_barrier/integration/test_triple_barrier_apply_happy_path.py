@@ -1,8 +1,8 @@
 import pandas as pd
-from triple_barrier.triple_barrier import (TradeSide,
-                                           MultiBarrier
-                                           )
-from triple_barrier.multi_barrier_box import MultiBarrierParameters
+from triple_barrier.trade_labeler import (TradeSide,
+                                          MultiBarrier
+                                          )
+from triple_barrier.orders import Orders
 from triple_barrier import constants
 
 OUTPUT_FOLDER: str = f"{constants.ROOT_FOLDER}/tests/triple_barrier/integration/output/"
@@ -85,7 +85,7 @@ def calculate_exit(row: any,
                    trade_side: TradeSide,
                    pip_decimal_position: int,
                    time_barrier_periods: int):
-    box_setup = MultiBarrierParameters()
+    box_setup = Orders()
 
     box_setup.open_time = str(row.name)
     box_setup.open_price = ohlc.loc[box_setup.open_time]["open"]

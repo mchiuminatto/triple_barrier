@@ -9,7 +9,7 @@ import pandas as pd
 from triple_barrier.multi_barrier_types import TradeSide
 
 
-class MultiBarrierParameters:
+class Orders:
 
     def __init__(self):
         self.open_time: str | None = None
@@ -68,7 +68,7 @@ class BoxBuilder:
         self._pip_decimal_position: int | None = None
 
     def build_multi_barrier_box(self,
-                                multi_barrier_parameters: MultiBarrierParameters
+                                multi_barrier_parameters: Orders
                                 ) -> MultiBarrierBox:
 
         self.open_date_time(multi_barrier_parameters.open_time)

@@ -4,7 +4,7 @@ from dateutil import parser
 import numpy as np
 import pandas as pd
 
-from triple_barrier.triple_barrier import TakeProfit
+from triple_barrier.trade_labeler import TakeProfit
 from triple_barrier.multi_barrier_types import TradeSide
 from triple_barrier import constants
 

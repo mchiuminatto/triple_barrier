@@ -1,8 +1,8 @@
 from dateutil import parser
 
-from triple_barrier.multi_barrier_box import MultiBarrierParameters
-from triple_barrier.multi_barrier_box import MultiBarrierBox
-from triple_barrier.multi_barrier_box import BoxBuilder
+from triple_barrier.orders import Orders
+from triple_barrier.orders import MultiBarrierBox
+from triple_barrier.orders import BoxBuilder
 from triple_barrier.multi_barrier_types import TradeSide
 
 
@@ -10,7 +10,7 @@ class TestMultiBarrierBox:
 
     def test_builder_long_levels(self):
 
-        parameters = MultiBarrierParameters()
+        parameters = Orders()
         parameters.open_time = "2023-01-02 02:05:00"
         parameters.trade_side = TradeSide.BUY
         parameters.open_price = 1.07044
@@ -31,7 +31,7 @@ class TestMultiBarrierBox:
 
     def test_builder_short_levels(self):
 
-        parameters = MultiBarrierParameters()
+        parameters = Orders()
         parameters.open_time = "2023-01-02 02:05:00"
         parameters.trade_side = TradeSide.SELL
         parameters.open_price = 1.07044
@@ -52,7 +52,7 @@ class TestMultiBarrierBox:
 
     def test_builder_long_width(self):
 
-        parameters = MultiBarrierParameters()
+        parameters = Orders()
         parameters.open_time = "2023-01-02 02:05:00"
         parameters.trade_side = TradeSide.BUY
         parameters.open_price = 1.07044
@@ -73,7 +73,7 @@ class TestMultiBarrierBox:
 
     def test_builder_short_width(self):
 
-        parameters = MultiBarrierParameters()
+        parameters = Orders()
         parameters.open_time = "2023-01-02 02:05:00"
         parameters.trade_side = TradeSide.SELL
         parameters.open_price = 1.07044

@@ -1,10 +1,10 @@
 import pandas as pd
 from dateutil import parser
-from triple_barrier.triple_barrier import (TradeSide,
-                                           BarrierType,
-                                           MultiBarrier,
-                                           )
-from triple_barrier.multi_barrier_box import MultiBarrierParameters
+from triple_barrier.trade_labeler import (TradeSide,
+                                          BarrierType,
+                                          MultiBarrier,
+                                          )
+from triple_barrier.orders import Orders
 
 
 class TestTripleBarrier:
@@ -22,7 +22,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.BUY
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -57,7 +57,7 @@ class TestTripleBarrier:
         trade_side: TradeSide = TradeSide.SELL
         time_barrier_periods: int = 10
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -91,7 +91,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.SELL
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -124,7 +124,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.BUY
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -158,7 +158,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.BUY
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -195,7 +195,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.SELL
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -230,7 +230,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.BUY
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_level = take_profit
@@ -265,7 +265,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.SELL
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_level = take_profit

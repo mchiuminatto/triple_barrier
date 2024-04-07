@@ -1,6 +1,6 @@
 from datetime import datetime
 from dateutil import parser
-from triple_barrier.triple_barrier import (
+from triple_barrier.trade_labeler import (
                                            TimeBarrier,
                                            )
 
