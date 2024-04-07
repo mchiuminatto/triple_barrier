@@ -1,8 +1,8 @@
 import pandas as pd
-from triple_barrier.triple_barrier import (TradeSide,
-                                           MultiBarrier
+from triple_barrier.trade_labeling import (TradeSide,
+                                           Labeler
                                            )
-from triple_barrier.multi_barrier_box import MultiBarrierParameters
+from triple_barrier.orders import Orders
 from triple_barrier import constants
 
 OUTPUT_FOLDER: str = f"{constants.ROOT_FOLDER}/tests/triple_barrier/integration/output/"
@@ -85,7 +85,7 @@ def calculate_exit(row: any,
                    trade_side: TradeSide,
                    pip_decimal_position: int,
                    time_barrier_periods: int):
-    box_setup = MultiBarrierParameters()
+    box_setup = Orders()
 
     box_setup.open_time = str(row.name)
     box_setup.open_price = ohlc.loc[box_setup.open_time]["open"]
@@ -95,17 +95,17 @@ def calculate_exit(row: any,
     box_setup.trade_side = trade_side
     box_setup.pip_decimal_position = pip_decimal_position
 
-    barrier_builder = MultiBarrier(open_price=ohlc.open,
-                                   high_price=ohlc.high,
-                                   low_price=ohlc.low,
-                                   close_price=ohlc.close,
-                                   dynamic_exit=ohlc["exit"],
-                                   box_setup=box_setup
-                                   )
+    barrier_builder = Labeler(open_price=ohlc.open,
+                              high_price=ohlc.high,
+                              low_price=ohlc.low,
+                              close_price=ohlc.close,
+                              dynamic_exit=ohlc["exit"],
+                              box_setup=box_setup
+                              )
     barrier_builder.compute()
 
     row["close-price"] = barrier_builder.multi_barrier_hit.first_hit.level
     row["close-datetime"] = barrier_builder.multi_barrier_hit.first_hit.hit_datetime
-    row["close-type"] = barrier_builder.multi_barrier_hit.first_hit.barrier_type.value
+    row["close-type"] = barrier_builder.multi_barrier_hit.first_hit.order_type.value
 
     return row

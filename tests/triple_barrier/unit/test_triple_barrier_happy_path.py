@@ -1,10 +1,10 @@
 import pandas as pd
 from dateutil import parser
-from triple_barrier.triple_barrier import (TradeSide,
-                                           BarrierType,
-                                           MultiBarrier,
+from triple_barrier.trade_labeling import (TradeSide,
+                                           OrderType,
+                                           Labeler,
                                            )
-from triple_barrier.multi_barrier_box import MultiBarrierParameters
+from triple_barrier.orders import Orders
 
 
 class TestTripleBarrier:
@@ -22,7 +22,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.BUY
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -31,15 +31,15 @@ class TestTripleBarrier:
         box_setup.trade_side = trade_side
         box_setup.pip_decimal_position = pip_decimal_position
 
-        barrier_builder = MultiBarrier(open_price=df.open,
-                                       high_price=df.high,
-                                       low_price=df.low,
-                                       close_price=df.close,
-                                       dynamic_exit=df.exit,
-                                       box_setup=box_setup)
+        barrier_builder = Labeler(open_price=df.open,
+                                  high_price=df.high,
+                                  low_price=df.low,
+                                  close_price=df.close,
+                                  dynamic_exit=df.exit,
+                                  box_setup=box_setup)
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.barrier_type == BarrierType.TAKE_PROFIT
+        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.TAKE_PROFIT
         assert barrier_builder.multi_barrier_hit.first_hit.level == 1.06759
         assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
@@ -57,7 +57,7 @@ class TestTripleBarrier:
         trade_side: TradeSide = TradeSide.SELL
         time_barrier_periods: int = 10
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -66,15 +66,15 @@ class TestTripleBarrier:
         box_setup.trade_side = trade_side
         box_setup.pip_decimal_position = pip_decimal_position
 
-        barrier_builder = MultiBarrier(open_price=df.open,
-                                       high_price=df.high,
-                                       low_price=df.low,
-                                       close_price=df.close,
-                                       box_setup=box_setup
-                                       )
+        barrier_builder = Labeler(open_price=df.open,
+                                  high_price=df.high,
+                                  low_price=df.low,
+                                  close_price=df.close,
+                                  box_setup=box_setup
+                                  )
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.barrier_type == BarrierType.STOP_LOSS
+        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.STOP_LOSS
         assert barrier_builder.multi_barrier_hit.first_hit.level == 1.06759
         assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
@@ -91,7 +91,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.SELL
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -100,14 +100,14 @@ class TestTripleBarrier:
         box_setup.trade_side = trade_side
         box_setup.pip_decimal_position = pip_decimal_position
 
-        barrier_builder = MultiBarrier(open_price=df.open,
-                                       high_price=df.high,
-                                       low_price=df.low,
-                                       close_price=df.close,
-                                       box_setup=box_setup
-                                       )
+        barrier_builder = Labeler(open_price=df.open,
+                                  high_price=df.high,
+                                  low_price=df.low,
+                                  close_price=df.close,
+                                  box_setup=box_setup
+                                  )
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.barrier_type == BarrierType.TIME_BARRIER
+        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.TIME_BARRIER
         assert barrier_builder.multi_barrier_hit.first_hit.level == df["open"]["2023-01-02 23:00:00":].iloc[1]
         assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 23:00:00")
 
@@ -124,7 +124,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.BUY
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -133,15 +133,15 @@ class TestTripleBarrier:
         box_setup.trade_side = trade_side
         box_setup.pip_decimal_position = pip_decimal_position
 
-        barrier_builder = MultiBarrier(open_price=df.open,
-                                       high_price=df.high,
-                                       low_price=df.low,
-                                       close_price=df.close,
-                                       box_setup=box_setup
-                                       )
+        barrier_builder = Labeler(open_price=df.open,
+                                  high_price=df.high,
+                                  low_price=df.low,
+                                  close_price=df.close,
+                                  box_setup=box_setup
+                                  )
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.barrier_type == BarrierType.TIME_BARRIER
+        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.TIME_BARRIER
         assert barrier_builder.multi_barrier_hit.first_hit.level == df["open"]["2023-01-02 21:35:00":].iloc[1]
         assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 21:35:00")
 
@@ -158,7 +158,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.BUY
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -167,16 +167,16 @@ class TestTripleBarrier:
         box_setup.trade_side = trade_side
         box_setup.pip_decimal_position = pip_decimal_position
 
-        barrier_builder = MultiBarrier(open_price=df.open,
-                                       high_price=df.high,
-                                       low_price=df.low,
-                                       close_price=df.close,
-                                       box_setup=box_setup,
-                                       dynamic_exit=df["exit-signal"]
-                                       )
+        barrier_builder = Labeler(open_price=df.open,
+                                  high_price=df.high,
+                                  low_price=df.low,
+                                  close_price=df.close,
+                                  box_setup=box_setup,
+                                  dynamic_exit=df["exit-signal"]
+                                  )
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.barrier_type == BarrierType.DYNAMIC
+        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.DYNAMIC
         assert barrier_builder.multi_barrier_hit.first_hit.level == 1.06766
         assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 21:05:00")
 
@@ -195,7 +195,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.SELL
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_width = take_profit
@@ -204,16 +204,16 @@ class TestTripleBarrier:
         box_setup.trade_side = trade_side
         box_setup.pip_decimal_position = pip_decimal_position
 
-        barrier_builder = MultiBarrier(open_price=df.open,
-                                       high_price=df.high,
-                                       low_price=df.low,
-                                       close_price=df.close,
-                                       box_setup=box_setup,
-                                       dynamic_exit=df["exit-signal"]
-                                       )
+        barrier_builder = Labeler(open_price=df.open,
+                                  high_price=df.high,
+                                  low_price=df.low,
+                                  close_price=df.close,
+                                  box_setup=box_setup,
+                                  dynamic_exit=df["exit-signal"]
+                                  )
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.barrier_type == BarrierType.DYNAMIC
+        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.DYNAMIC
         assert barrier_builder.multi_barrier_hit.first_hit.level == 1.06766
         assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 21:05:00")
 
@@ -230,7 +230,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.BUY
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_level = take_profit
@@ -239,16 +239,16 @@ class TestTripleBarrier:
         box_setup.trade_side = trade_side
         box_setup.pip_decimal_position = pip_decimal_position
 
-        barrier_builder = MultiBarrier(open_price=df.open,
-                                       high_price=df.high,
-                                       low_price=df.low,
-                                       close_price=df.close,
-                                       box_setup=box_setup,
-                                       dynamic_exit=df["exit-signal"]
-                                       )
+        barrier_builder = Labeler(open_price=df.open,
+                                  high_price=df.high,
+                                  low_price=df.low,
+                                  close_price=df.close,
+                                  box_setup=box_setup,
+                                  dynamic_exit=df["exit-signal"]
+                                  )
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.barrier_type == BarrierType.TAKE_PROFIT
+        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.TAKE_PROFIT
         assert barrier_builder.multi_barrier_hit.first_hit.level == 1.0671
         assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 23:40:00")
 
@@ -265,7 +265,7 @@ class TestTripleBarrier:
         pip_decimal_position = 4
         trade_side: TradeSide = TradeSide.SELL
 
-        box_setup = MultiBarrierParameters()
+        box_setup = Orders()
         box_setup.open_time = open_datetime
         box_setup.open_price = df.loc[box_setup.open_time]["open"]
         box_setup.take_profit_level = take_profit
@@ -273,15 +273,15 @@ class TestTripleBarrier:
         box_setup.time_limit = "2023-01-03 23:00:00"
         box_setup.trade_side = trade_side
         box_setup.pip_decimal_position = pip_decimal_position
-        barrier_builder = MultiBarrier(open_price=df.open,
-                                       high_price=df.high,
-                                       low_price=df.low,
-                                       close_price=df.close,
-                                       box_setup=box_setup
-                                       )
+        barrier_builder = Labeler(open_price=df.open,
+                                  high_price=df.high,
+                                  low_price=df.low,
+                                  close_price=df.close,
+                                  box_setup=box_setup
+                                  )
         barrier_builder.compute()
 
-        assert barrier_builder.multi_barrier_hit.first_hit.barrier_type == BarrierType.STOP_LOSS
+        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.STOP_LOSS
         assert barrier_builder.multi_barrier_hit.first_hit.level == 1.05549
         assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-03  21:05:00")
 

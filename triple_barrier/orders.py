@@ -9,7 +9,7 @@ import pandas as pd
 from triple_barrier.multi_barrier_types import TradeSide
 
 
-class MultiBarrierParameters:
+class Orders:
 
     def __init__(self):
         self.open_time: str | None = None
@@ -23,7 +23,7 @@ class MultiBarrierParameters:
         self.pip_decimal_position: int | None = None
 
 
-class MultiBarrierBox:
+class OrdersBox:
 
     def __init__(self,
                  trade_side: TradeSide,
@@ -68,31 +68,31 @@ class BoxBuilder:
         self._pip_decimal_position: int | None = None
 
     def build_multi_barrier_box(self,
-                                multi_barrier_parameters: MultiBarrierParameters
-                                ) -> MultiBarrierBox:
+                                orders: Orders
+                                ) -> OrdersBox:
 
-        self.open_date_time(multi_barrier_parameters.open_time)
-        self.open_price(multi_barrier_parameters.open_price)
-        self.trade_side(multi_barrier_parameters.trade_side)
-        self.take_profit(multi_barrier_parameters.trade_side,
-                         multi_barrier_parameters.open_price,
-                         multi_barrier_parameters.take_profit_width,
-                         multi_barrier_parameters.take_profit_level,
-                         multi_barrier_parameters.pip_decimal_position)
-        self.stop_loss(multi_barrier_parameters.trade_side,
-                       multi_barrier_parameters.open_price,
-                       multi_barrier_parameters.stop_loss_width,
-                       multi_barrier_parameters.stop_loss_level,
-                       multi_barrier_parameters.pip_decimal_position)
-        self.time_limit(multi_barrier_parameters.time_limit)
-        self.pip_decimal_position(multi_barrier_parameters.pip_decimal_position)
-        return MultiBarrierBox(self._trade_side,
-                               self._open_datetime,
-                               self._open_price,
-                               self._stop_loss,
-                               self._take_profit,
-                               self._time_limit,
-                               self._pip_decimal_position)
+        self.open_date_time(orders.open_time)
+        self.open_price(orders.open_price)
+        self.trade_side(orders.trade_side)
+        self.take_profit(orders.trade_side,
+                         orders.open_price,
+                         orders.take_profit_width,
+                         orders.take_profit_level,
+                         orders.pip_decimal_position)
+        self.stop_loss(orders.trade_side,
+                       orders.open_price,
+                       orders.stop_loss_width,
+                       orders.stop_loss_level,
+                       orders.pip_decimal_position)
+        self.time_limit(orders.time_limit)
+        self.pip_decimal_position(orders.pip_decimal_position)
+        return OrdersBox(self._trade_side,
+                         self._open_datetime,
+                         self._open_price,
+                         self._stop_loss,
+                         self._take_profit,
+                         self._time_limit,
+                         self._pip_decimal_position)
 
     def open_date_time(self, open_date_time: str):
         self._open_datetime = pd.to_datetime(open_date_time)

@@ -14,4 +14,4 @@ build:
 	twine upload ./dist/*;
 
 reverse:
-	pyreverse -o png ./strategy;
+	pyreverse -o png ./triple_barrier --output-directory ./docs/images/;

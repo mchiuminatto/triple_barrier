@@ -1,7 +1,7 @@
 from datetime import datetime
 from dateutil import parser
-from triple_barrier.triple_barrier import (
-                                           DynamicBarrier,
+from triple_barrier.trade_labeling import (
+    DynamicOrder,
                                            )
 
 
@@ -10,7 +10,7 @@ class TestDynamicBarrier:
     def test_dynamic_barrier_hit(self, prepare_price_data):
         trade_open_datetime: datetime = parser.parse("2023-01-03 21:25:00")
         df = prepare_price_data
-        dynamic_barrier: DynamicBarrier = DynamicBarrier(
+        dynamic_barrier: DynamicOrder = DynamicOrder(
             open_price=df.open,
             exit_signals=df["exit-signal"],
             open_datetime=trade_open_datetime)

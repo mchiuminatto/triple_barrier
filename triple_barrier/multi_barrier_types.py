@@ -2,10 +2,10 @@ from enum import Enum
 from datetime import datetime
 
 
-class BarrierType(Enum):
+class OrderType(Enum):
     TAKE_PROFIT = "take-profit"
     STOP_LOSS = "stop-loss"
-    TIME_BARRIER = "time-barrier"
+    TIME_BARRIER = "time-expiration"
     DYNAMIC = "dynamic"
 
 
@@ -21,27 +21,27 @@ class TradeSide(Enum):
     SELL = -1
 
 
-class BarrierHit:
+class OrderHit:
 
     def __init__(self,
                  level: float | None = None,
                  hit_datetime: datetime | None = None,
-                 barrier_type: BarrierType | None = None
+                 order_type: OrderType | None = None
                  ):
         self.level: float = level
         self.hit_datetime: datetime = hit_datetime
-        self.barrier_type: BarrierType = barrier_type
+        self.order_type: OrderType = order_type
 
     def __str__(self):
         output: str = f"""
         Datetime: {self.hit_datetime}
         Level: {self.level}
-        Type: {self.barrier_type.value}
+        Type: {self.order_type.value}
         """
         return output
 
 
-class MultiBarrierHit:
+class OrderBoxHit:
     def __init__(self) -> None:
-        self.barriers: list[BarrierHit] = []
-        self.first_hit: BarrierHit = BarrierHit()
+        self.barriers: list[OrderHit] = []
+        self.first_hit: OrderHit = OrderHit()

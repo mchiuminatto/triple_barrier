@@ -1,8 +1,8 @@
 from dateutil import parser
 
-from triple_barrier.multi_barrier_box import MultiBarrierParameters
-from triple_barrier.multi_barrier_box import MultiBarrierBox
-from triple_barrier.multi_barrier_box import BoxBuilder
+from triple_barrier.orders import Orders
+from triple_barrier.orders import OrdersBox
+from triple_barrier.orders import BoxBuilder
 from triple_barrier.multi_barrier_types import TradeSide
 
 
@@ -10,17 +10,17 @@ class TestMultiBarrierBox:
 
     def test_builder_long_levels(self):
 
-        parameters = MultiBarrierParameters()
-        parameters.open_time = "2023-01-02 02:05:00"
-        parameters.trade_side = TradeSide.BUY
-        parameters.open_price = 1.07044
-        parameters.stop_loss_level = 1.06044
-        parameters.take_profit_level = 1.09044
-        parameters.time_limit = "2023-01-02 03:05:00"
-        parameters.pip_decimal_position = 4
+        orders = Orders()
+        orders.open_time = "2023-01-02 02:05:00"
+        orders.trade_side = TradeSide.BUY
+        orders.open_price = 1.07044
+        orders.stop_loss_level = 1.06044
+        orders.take_profit_level = 1.09044
+        orders.time_limit = "2023-01-02 03:05:00"
+        orders.pip_decimal_position = 4
 
         box_builder = BoxBuilder()
-        multi_barrier_box = box_builder.build_multi_barrier_box(parameters)
+        multi_barrier_box = box_builder.build_multi_barrier_box(orders)
 
         assert multi_barrier_box.open_datetime == parser.parse("2023-01-02 02:05:00")
         assert multi_barrier_box.stop_loss == 1.06044
@@ -31,17 +31,17 @@ class TestMultiBarrierBox:
 
     def test_builder_short_levels(self):
 
-        parameters = MultiBarrierParameters()
-        parameters.open_time = "2023-01-02 02:05:00"
-        parameters.trade_side = TradeSide.SELL
-        parameters.open_price = 1.07044
-        parameters.stop_loss_level = 1.09044
-        parameters.take_profit_level = 1.06044
-        parameters.time_limit = "2023-01-02 03:05:00"
-        parameters.pip_decimal_position = 4
+        orders = Orders()
+        orders.open_time = "2023-01-02 02:05:00"
+        orders.trade_side = TradeSide.SELL
+        orders.open_price = 1.07044
+        orders.stop_loss_level = 1.09044
+        orders.take_profit_level = 1.06044
+        orders.time_limit = "2023-01-02 03:05:00"
+        orders.pip_decimal_position = 4
 
         box_builder = BoxBuilder()
-        multi_barrier_box = box_builder.build_multi_barrier_box(parameters)
+        multi_barrier_box = box_builder.build_multi_barrier_box(orders)
 
         assert multi_barrier_box.open_datetime == parser.parse("2023-01-02 02:05:00")
         assert multi_barrier_box.stop_loss == 1.09044
@@ -52,17 +52,17 @@ class TestMultiBarrierBox:
 
     def test_builder_long_width(self):
 
-        parameters = MultiBarrierParameters()
-        parameters.open_time = "2023-01-02 02:05:00"
-        parameters.trade_side = TradeSide.BUY
-        parameters.open_price = 1.07044
-        parameters.stop_loss_width = 100
-        parameters.take_profit_width = 200
-        parameters.time_limit = "2023-01-02 03:05:00"
-        parameters.pip_decimal_position = 4
+        orders = Orders()
+        orders.open_time = "2023-01-02 02:05:00"
+        orders.trade_side = TradeSide.BUY
+        orders.open_price = 1.07044
+        orders.stop_loss_width = 100
+        orders.take_profit_width = 200
+        orders.time_limit = "2023-01-02 03:05:00"
+        orders.pip_decimal_position = 4
 
         box_builder = BoxBuilder()
-        multi_barrier_box = box_builder.build_multi_barrier_box(parameters)
+        multi_barrier_box = box_builder.build_multi_barrier_box(orders)
 
         assert multi_barrier_box.open_datetime == parser.parse("2023-01-02 02:05:00")
         assert multi_barrier_box.stop_loss == 1.06044
@@ -73,17 +73,17 @@ class TestMultiBarrierBox:
 
     def test_builder_short_width(self):
 
-        parameters = MultiBarrierParameters()
-        parameters.open_time = "2023-01-02 02:05:00"
-        parameters.trade_side = TradeSide.SELL
-        parameters.open_price = 1.07044
-        parameters.stop_loss_width = 200
-        parameters.take_profit_width = 100
-        parameters.time_limit = "2023-01-02 03:05:00"
-        parameters.pip_decimal_position = 4
+        orders = Orders()
+        orders.open_time = "2023-01-02 02:05:00"
+        orders.trade_side = TradeSide.SELL
+        orders.open_price = 1.07044
+        orders.stop_loss_width = 200
+        orders.take_profit_width = 100
+        orders.time_limit = "2023-01-02 03:05:00"
+        orders.pip_decimal_position = 4
 
         box_builder = BoxBuilder()
-        multi_barrier_box = box_builder.build_multi_barrier_box(parameters)
+        multi_barrier_box = box_builder.build_multi_barrier_box(orders)
 
         assert multi_barrier_box.open_datetime == parser.parse("2023-01-02 02:05:00")
         assert multi_barrier_box.stop_loss == 1.09044

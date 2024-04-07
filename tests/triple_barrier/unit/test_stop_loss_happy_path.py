@@ -1,5 +1,5 @@
 from dateutil import parser
-from triple_barrier.triple_barrier import StopLoss
+from triple_barrier.trade_labeling import StopLoss
 from triple_barrier.multi_barrier_types import TradeSide
 
 
