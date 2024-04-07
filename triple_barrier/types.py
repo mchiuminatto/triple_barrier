@@ -41,7 +41,11 @@ class OrderHit:
         return output
 
 
-class OrderBoxHit:
+class OrderBoxHits:
     def __init__(self) -> None:
         self.barriers: list[OrderHit] = []
         self.first_hit: OrderHit = OrderHit()
+
+    # TODO: Implement a good string representation
+
+
