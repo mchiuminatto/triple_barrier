@@ -4,9 +4,9 @@ import pandas as pd
 import numpy as np
 
 from triple_barrier import constants
-from triple_barrier.multi_barrier_box import BoxBuilder
-from triple_barrier.multi_barrier_box import MultiBarrierParameters
-from triple_barrier.multi_barrier_box import MultiBarrierBox
+from triple_barrier.orders import BoxBuilder
+from triple_barrier.orders import Orders
+from triple_barrier.orders import MultiBarrierBox
 from triple_barrier.multi_barrier_types import MultiBarrierHit
 from triple_barrier.multi_barrier_types import BarrierHit
 from triple_barrier.multi_barrier_types import BarrierType
@@ -20,7 +20,7 @@ class MultiBarrier:
                  high_price: pd.Series,
                  low_price: pd.Series,
                  close_price: pd.Series,
-                 box_setup: MultiBarrierParameters,
+                 box_setup: Orders,
                  dynamic_exit: pd.Series | None = None
                  ) -> None:
 
