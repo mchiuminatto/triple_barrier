@@ -82,14 +82,6 @@ Or to this Jupyter Notebook that combines triple barrier calculation with plotti
 [Triple Barrier Jupyter Notebook](./docs/plot-method-tests.ipynb)
 
 
-### How to install
-
-As of now, the latest version (Release candidate) is 0.4.1rc and can be installed as follows:
-
-```commandline
-pip install triple-barrier==0.4.2rc0
-```
-
 ### Examples
 
 This is a work in progress, but you can find some examples here:
