@@ -2,11 +2,11 @@
 
 ## Package Model
 
-![](./docs/images/packages.png)
+![](./images/packages.png)
 
 
 ## Class Model 
 
-![](./docs/images/classes.png)
+![](./images/classes.png)
 
 

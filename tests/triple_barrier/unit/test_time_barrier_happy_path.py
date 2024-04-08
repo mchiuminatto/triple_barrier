@@ -1,8 +1,8 @@
 from datetime import datetime
 from dateutil import parser
 from triple_barrier.trade_labeling import (
-                                           TimeBarrier,
-                                           )
+    TimeBarrier
+)
 
 
 class TestTimeBarrier:
@@ -20,4 +20,3 @@ class TestTimeBarrier:
 
         assert time_barrier.barrier.hit_datetime == parser.parse("2023-01-02 21:35:00")
         assert time_barrier.barrier.level == df.loc["2023-01-02 21:35:00":]["open"].iloc[1]
-

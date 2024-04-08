@@ -62,7 +62,7 @@ class PlotTripleBarrier:
             time_barrier_datetime=multi_barrier.multi_barrier_box.time_limit,
             periods_to_plot=self._periods_to_plot,
             dynamic_exit_price=None,
-            closing_event=multi_barrier.multi_barrier_hit.first_hit
+            closing_event=multi_barrier.orders_hit.first_hit
         )
 
     def _plot(self,
@@ -128,9 +128,9 @@ class PlotTripleBarrier:
 
         # move this logic to a function that returns the make_addplot object
         self.ohlc["temp-dynamic"] = np.nan
-        high = (self.ohlc.loc[closing_event.hit_datetime, "high"] +
-                (self.ohlc.loc[closing_event.hit_datetime, "high"] -
-                 self.ohlc.loc[closing_event.hit_datetime, "low"]) * 1.05)
+        high = (self.ohlc.loc[closing_event.hit_datetime, "high"]
+                + (self.ohlc.loc[closing_event.hit_datetime, "high"]
+                   - self.ohlc.loc[closing_event.hit_datetime, "low"]) * 1.05)
         self.ohlc.loc[closing_event.hit_datetime, "temp-dynamic"] = high
 
         return mpf.make_addplot(self.ohlc[date_from: date_to]["temp-dynamic"],

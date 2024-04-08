@@ -6,7 +6,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from triple_barrier.multi_barrier_types import TradeSide
+from triple_barrier.types import TradeSide
 
 
 class Orders:
@@ -21,6 +21,18 @@ class Orders:
         self.stop_loss_level: float | None = None
         self.time_limit: str | None = None
         self.pip_decimal_position: int | None = None
+
+    def __str__(self):
+        orders_setup: str = f"""
+        open time: {self.open_time}
+        open price: {self.open_price}
+        trade side: {self.trade_side.name}
+        stop loss : {self.stop_loss_level if self.stop_loss_level is not None else self.stop_loss_width}
+        take profit : {self.take_profit_level if self.take_profit_level is not None else self.take_profit_width}
+        time limit : {self.time_limit}
+        pip position : {self.pip_decimal_position}
+        """
+        return orders_setup
 
 
 class OrdersBox:

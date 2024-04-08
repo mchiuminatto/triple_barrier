@@ -3,6 +3,7 @@ from triple_barrier.trade_labeling import (TradeSide,
                                            Labeler
                                            )
 from triple_barrier.orders import Orders
+from triple_barrier.types import OrderType
 from triple_barrier import constants
 
 OUTPUT_FOLDER: str = f"{constants.ROOT_FOLDER}/tests/triple_barrier/integration/output/"
@@ -40,10 +41,10 @@ class TestApplyCases:
         entry.to_parquet(f"{OUTPUT_FOLDER}base_case_long.parquet")
 
         assert {"close-price", "close-datetime", "close-type"}.issubset(entry.columns)
-        assert round(grouped["dynamic"], 1) == -16.4
-        assert round(grouped["stop-loss"], 1) == -2345.0
-        assert round(grouped["take-profit"], 1) == 1490.0
-        assert round(grouped["time-barrier"], 1) == 678.7
+        assert round(grouped[OrderType.DYNAMIC.value], 1) == -16.4
+        assert round(grouped[OrderType.STOP_LOSS.value], 1) == -2345.0
+        assert round(grouped[OrderType.TAKE_PROFIT.value], 1) == 1490.0
+        assert round(grouped[OrderType.TIME_EXPIRATION.value], 1) == 678.7
 
     def test_base_case_short(self, prepare_price_data_short):
         """
@@ -72,10 +73,11 @@ class TestApplyCases:
         entry.to_parquet(f"{OUTPUT_FOLDER}base_case_short.parquet")
 
         assert {"close-price", "close-datetime", "close-type"}.issubset(entry.columns)
-        assert round(grouped["dynamic"], 1) == -55.1
-        assert round(grouped["stop-loss"], 1) == -2410.0
-        assert round(grouped["take-profit"], 1) == 1710.0
-        assert round(grouped["time-barrier"], 1) == 694.0
+
+        assert round(grouped[OrderType.DYNAMIC.value], 1) == -55.1
+        assert round(grouped[OrderType.STOP_LOSS.value], 1) == -2410.0
+        assert round(grouped[OrderType.TAKE_PROFIT.value], 1) == 1710.0
+        assert round(grouped[OrderType.TIME_EXPIRATION.value], 1) == 694.0
 
 
 def calculate_exit(row: any,
@@ -104,8 +106,8 @@ def calculate_exit(row: any,
                               )
     barrier_builder.compute()
 
-    row["close-price"] = barrier_builder.multi_barrier_hit.first_hit.level
-    row["close-datetime"] = barrier_builder.multi_barrier_hit.first_hit.hit_datetime
-    row["close-type"] = barrier_builder.multi_barrier_hit.first_hit.order_type.value
+    row["close-price"] = barrier_builder.orders_hit.first_hit.level
+    row["close-datetime"] = barrier_builder.orders_hit.first_hit.hit_datetime
+    row["close-type"] = barrier_builder.orders_hit.first_hit.order_type.value
 
     return row

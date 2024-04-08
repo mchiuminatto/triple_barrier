@@ -4,77 +4,76 @@ This is a work in progress DO NOT USE IT FOR PRODUCTION PURPOSES
 
 # Overview
 
-Triple Barrier is a trade labeler that can be used in the context of back-testing or machine learning trading and
-validating process. It records for each trade when, at what price level and why a trade was closed.
+Triple Barrier is a trade labeler that can be used for algorithmic trading back-testing or machine learning training and
+validating pipelines. It records for each trade when, at what price level and why a position was closed.
 
 ![](./docs/images/trades-table.png)
 
-Includes features to plot the triple for a particular trade and the closing event:
+It includes features to plot the triple for a particular trade and the closing event:
 
 ![](./docs/images/trade_example_1.png)
 
 Other features:
 
 - Built
-  upon [pandas](https://pandas.pydata.org/), [numpy](https://numpy.org/), [mplfinance](https://github.com/matplotlib/mplfinance).
-- Works semi vectorized, meaning that can be used with a pandas apply function.
+  upon [pandas](https://pandas.pydata.org/), [numpy](https://numpy.org/), [matplotlib](https://matplotlib.org/) [mplfinance](https://github.com/matplotlib/mplfinance).
+- It can be used to label single trades or semi vectorized, meaning that can be used with a pandas apply function.
 
 ## Why?
 
-This project emerges from repeated trading strategy back-testing process where I was caught again and again copying and
-pasting from previous pipelines the code to perform a vectorized (semi-vectorized to be more accurate) labeling of
-trades. To avoid this DRY (Do not Repeat Yourself) routine, is that I decided to move this code to a library.
+This project emerges from a repeated trading strategy back-testing process where I was caught again and again copying 
+and pasting from previous pipelines the code to perform a vectorized (semi-vectorized to be more accurate) labeling of 
+trades. To avoid this DRY (Do not Repeat Yourself) routine, that is why I decided to move this code to a library.
 
-The name and core idea are inspired in an algorithm found in the book: Advances in Financial Machine Learning, by Marcos
+The name and core idea were inspired by an algorithm found in the book: Advances in Financial Machine Learning, by Marcos
 Lopez de Prado.
 
 Before moving further into the library details a little bit of context.
 
 ### Trading Strategies
 
-A trading strategy describes the logic for opening trades, managing and closing positions.
+A trading strategy describes the logic for opening, managing and closing positions.
 
-Depending on the trading strategy, after a position is opened, four events will determine how the position ends:
+Depending on the trading strategy, once a position is opened, four events can determine how the position ends:
 
 1. Stop loss hit: The price hit the stop loss, which is the maximum tolerable loss (Limit Order)
 2. Take profit hit: The price hit the take profit, which is the estimated maximum profit the position can reach (Limit
    Order)
 3. Expiration time reached: The position has reached a specific expiration time (Good Til Time or GTT orders)
-4. A custom condition: Any custom condition that can maximize the position profit. These conditions depend on price
+4. A custom condition: Any custom condition that can trigger the position closing. These conditions depend on price
    action while the position is opened
 
 ![](./docs/images/triple-barrier-long.png)
 
-To determine if strategy is potentially profitable before live trading, it is necessary to collect a large sample of
+To determine if a strategy is potentially profitable before live trading, it is necessary to collect a large sample of
 trades to analyze the effectiveness of the strategy in terms of profits, mean profits, profits distributions, drawdowns
 or any metric you prefer.
 
 Doing this analysis process manually is not recommended at all, considering the amount of data you need to analyze, the
 volume of trades required to determine if the strategy is significantly profitable and the human error, to name a few
-reasons. Suppose you have ten trading strategy models, each one with ten permutations of parameter values (this can lead
-to overfitting, I know) and suppose you want to collect samples over ten years at a frequency (time-frame) of 
-5 minutes, impossible, isn't it?
+reasons. 
 
-## Enter Algorithmic Trading
+## Algorithmic Trading and Triple Barrier
 
-In simple terms, through algorithmic trading is using software to automate all the process described above: Open, manage
+In simple terms, algorithmic trading is using software to automate all the processes described above: Open, manage
 and Close trading positions.
 
 But before running live a trading algorithm that implements a trading model you need to perform some research and
-analyze the algorithm behavior on historic data to understand whether the algorithm is able to generalize and
-potentially behave similarly on unseen or future data, this process is called back-testing.
+analyze the algorithm behavior on historic data to understand whether the algorithm is able to generalize well and
+ behave similarly on unseen or future data, this process is called back-testing.
 
 Is in back-testing where you need to identify: when positions were opened, when and why they were closed, so you can 
-calculate profit/loss and any performance metrics you need. 
+calculate all required performance metrics and that is why Triple Barrier was built for.
 
-## Enter Triple Barrier
-
-So Triple Barrier automates the recording of trades in the context of back-testing or machine learning as well
-to label trade profit/loss, closing event or any other value you can calculate from the data provided by triple barrier.
 
 ## How?
 
-For now please refer to the tests to understand how triple barrier works:
+### How to install
+
+```commandline
+pip install triple-barrier==0.4.3rc0
+```
+
 
 [Triple barrier test](./tests/triple_barrier/integration/test_triple_barrier_apply_happy_path.py)
 
@@ -93,10 +92,27 @@ pip install triple-barrier==0.4.2rc0
 
 ### Examples
 
-To use Triple Barrier with pandas apply function, you need to build include this function:
+This is a work in progress, but you can find some examples here:
+
+You can see use case examples in this [folder](./docs/examples)
+
+## TODO
+
+This project is its final stages of testing, documentation and CLEANing.
+
+Besides that, there are some identified tasks that need to be done before the first release.
+
+- Add string representations for some classes
+- Provide an out-of-the-box function that can be easily used by pandas apply . Currently, you need to build one.
+- Refactor list of barriers hits (OrderBoxHits.barriers) as dictionary, currently is a list which
+is not much actionable.
+- Plotting: Add possibility to plot oscillators in a panel below
+- Add trailing stops
 
 
+## Other Documentation
 
+[Uml models](./docs/models.md)
 
 # References
 

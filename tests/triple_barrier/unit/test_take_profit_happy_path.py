@@ -1,12 +1,10 @@
 from datetime import datetime
 from dateutil import parser
 
-import numpy as np
 import pandas as pd
 
 from triple_barrier.trade_labeling import TakeProfit
-from triple_barrier.multi_barrier_types import TradeSide
-from triple_barrier import constants
+from triple_barrier.types import TradeSide
 
 
 class TestTakeProfit:
@@ -50,9 +48,3 @@ class TestTakeProfit:
 
         assert take_profit_barrier.barrier.level == 1.06609
         assert take_profit_barrier.barrier.hit_datetime == parser.parse("2023-01-02 22:05:00")
-
-
-
-
-
-
