@@ -1,6 +1,6 @@
 from dateutil import parser
 from triple_barrier.trade_labeling import StopLoss
-from triple_barrier.multi_barrier_types import TradeSide
+from triple_barrier.types import TradeSide
 
 
 class TestStopLoss:
@@ -42,4 +42,3 @@ class TestStopLoss:
 
         assert stop_loss_barrier.barrier.level == 1.05535
         assert stop_loss_barrier.barrier.hit_datetime == parser.parse("2023-01-03 15:25:00")
-

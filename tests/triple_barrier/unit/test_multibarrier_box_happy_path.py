@@ -1,15 +1,13 @@
 from dateutil import parser
 
 from triple_barrier.orders import Orders
-from triple_barrier.orders import OrdersBox
 from triple_barrier.orders import BoxBuilder
-from triple_barrier.multi_barrier_types import TradeSide
+from triple_barrier.types import TradeSide
 
 
 class TestMultiBarrierBox:
 
     def test_builder_long_levels(self):
-
         orders = Orders()
         orders.open_time = "2023-01-02 02:05:00"
         orders.trade_side = TradeSide.BUY
@@ -30,7 +28,6 @@ class TestMultiBarrierBox:
         assert multi_barrier_box.pip_decimal_position == 4
 
     def test_builder_short_levels(self):
-
         orders = Orders()
         orders.open_time = "2023-01-02 02:05:00"
         orders.trade_side = TradeSide.SELL
@@ -51,7 +48,6 @@ class TestMultiBarrierBox:
         assert multi_barrier_box.pip_decimal_position == 4
 
     def test_builder_long_width(self):
-
         orders = Orders()
         orders.open_time = "2023-01-02 02:05:00"
         orders.trade_side = TradeSide.BUY
@@ -72,7 +68,6 @@ class TestMultiBarrierBox:
         assert multi_barrier_box.pip_decimal_position == 4
 
     def test_builder_short_width(self):
-
         orders = Orders()
         orders.open_time = "2023-01-02 02:05:00"
         orders.trade_side = TradeSide.SELL
@@ -91,4 +86,3 @@ class TestMultiBarrierBox:
         assert multi_barrier_box.trade_side == TradeSide.SELL
         assert multi_barrier_box.time_limit == parser.parse("2023-01-02 03:05:00")
         assert multi_barrier_box.pip_decimal_position == 4
-

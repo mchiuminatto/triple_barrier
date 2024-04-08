@@ -2,7 +2,7 @@ from datetime import datetime
 from dateutil import parser
 from triple_barrier.trade_labeling import (
     DynamicOrder,
-                                           )
+)
 
 
 class TestDynamicBarrier:
@@ -18,4 +18,3 @@ class TestDynamicBarrier:
 
         assert dynamic_barrier.barrier.level == 1.05681
         assert dynamic_barrier.barrier.hit_datetime == parser.parse("2023-01-04 00:25:00")
-

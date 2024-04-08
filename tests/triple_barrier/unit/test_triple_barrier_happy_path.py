@@ -1,4 +1,3 @@
-import pandas as pd
 from dateutil import parser
 from triple_barrier.trade_labeling import (TradeSide,
                                            OrderType,
@@ -39,9 +38,9 @@ class TestTripleBarrier:
                                   box_setup=box_setup)
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.TAKE_PROFIT
-        assert barrier_builder.multi_barrier_hit.first_hit.level == 1.06759
-        assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
+        assert barrier_builder.orders_hit.first_hit.order_type == OrderType.TAKE_PROFIT
+        assert barrier_builder.orders_hit.first_hit.level == 1.06759
+        assert barrier_builder.orders_hit.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
     def test_full_barrier_stop_loss_short_width(self, prepare_price_data):
         """
@@ -74,9 +73,9 @@ class TestTripleBarrier:
                                   )
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.STOP_LOSS
-        assert barrier_builder.multi_barrier_hit.first_hit.level == 1.06759
-        assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
+        assert barrier_builder.orders_hit.first_hit.order_type == OrderType.STOP_LOSS
+        assert barrier_builder.orders_hit.first_hit.level == 1.06759
+        assert barrier_builder.orders_hit.first_hit.hit_datetime == parser.parse("2023-01-02 20:55:00")
 
     def test_full_barrier_time_barrier_short(self, prepare_price_data):
         """
@@ -107,9 +106,9 @@ class TestTripleBarrier:
                                   box_setup=box_setup
                                   )
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.TIME_BARRIER
-        assert barrier_builder.multi_barrier_hit.first_hit.level == df["open"]["2023-01-02 23:00:00":].iloc[1]
-        assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 23:00:00")
+        assert barrier_builder.orders_hit.first_hit.order_type == OrderType.TIME_EXPIRATION
+        assert barrier_builder.orders_hit.first_hit.level == df["open"]["2023-01-02 23:00:00":].iloc[1]
+        assert barrier_builder.orders_hit.first_hit.hit_datetime == parser.parse("2023-01-02 23:00:00")
 
     def test_full_barrier_time_barrier_hit_long(self, prepare_price_data):
         """
@@ -141,9 +140,9 @@ class TestTripleBarrier:
                                   )
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.TIME_BARRIER
-        assert barrier_builder.multi_barrier_hit.first_hit.level == df["open"]["2023-01-02 21:35:00":].iloc[1]
-        assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 21:35:00")
+        assert barrier_builder.orders_hit.first_hit.order_type == OrderType.TIME_EXPIRATION
+        assert barrier_builder.orders_hit.first_hit.level == df["open"]["2023-01-02 21:35:00":].iloc[1]
+        assert barrier_builder.orders_hit.first_hit.hit_datetime == parser.parse("2023-01-02 21:35:00")
 
     def test_full_barrier_dynamic_hit_long(self, prepare_price_data):
         """
@@ -176,9 +175,9 @@ class TestTripleBarrier:
                                   )
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.DYNAMIC
-        assert barrier_builder.multi_barrier_hit.first_hit.level == 1.06766
-        assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 21:05:00")
+        assert barrier_builder.orders_hit.first_hit.order_type == OrderType.DYNAMIC
+        assert barrier_builder.orders_hit.first_hit.level == 1.06766
+        assert barrier_builder.orders_hit.first_hit.hit_datetime == parser.parse("2023-01-02 21:05:00")
 
     def test_full_barrier_dynamic_hit_short(self, prepare_price_data):
         """
@@ -186,8 +185,8 @@ class TestTripleBarrier:
             distance in pips.
         """
         df = prepare_price_data
-        trade_open_datetime: str = "2023-01-02 20:45:00"
-        trade_side: TradeSide = TradeSide.SELL
+        # trade_open_datetime: str = "2023-01-02 20:45:00"
+        # trade_side: TradeSide = TradeSide.SELL
 
         stop_loss: float = 20
         take_profit: float = 20
@@ -213,9 +212,9 @@ class TestTripleBarrier:
                                   )
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.DYNAMIC
-        assert barrier_builder.multi_barrier_hit.first_hit.level == 1.06766
-        assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 21:05:00")
+        assert barrier_builder.orders_hit.first_hit.order_type == OrderType.DYNAMIC
+        assert barrier_builder.orders_hit.first_hit.level == 1.06766
+        assert barrier_builder.orders_hit.first_hit.hit_datetime == parser.parse("2023-01-02 21:05:00")
 
     def test_sl_tp_levels_long_tp_level(self, prepare_price_data):
         """
@@ -248,9 +247,9 @@ class TestTripleBarrier:
                                   )
 
         barrier_builder.compute()
-        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.TAKE_PROFIT
-        assert barrier_builder.multi_barrier_hit.first_hit.level == 1.0671
-        assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-02 23:40:00")
+        assert barrier_builder.orders_hit.first_hit.order_type == OrderType.TAKE_PROFIT
+        assert barrier_builder.orders_hit.first_hit.level == 1.0671
+        assert barrier_builder.orders_hit.first_hit.hit_datetime == parser.parse("2023-01-02 23:40:00")
 
     def test_sl_tp_levels_long_short_sl_level(self, prepare_price_data):
         """
@@ -281,10 +280,6 @@ class TestTripleBarrier:
                                   )
         barrier_builder.compute()
 
-        assert barrier_builder.multi_barrier_hit.first_hit.order_type == OrderType.STOP_LOSS
-        assert barrier_builder.multi_barrier_hit.first_hit.level == 1.05549
-        assert barrier_builder.multi_barrier_hit.first_hit.hit_datetime == parser.parse("2023-01-03  21:05:00")
-
-
-
-
+        assert barrier_builder.orders_hit.first_hit.order_type == OrderType.STOP_LOSS
+        assert barrier_builder.orders_hit.first_hit.level == 1.05549
+        assert barrier_builder.orders_hit.first_hit.hit_datetime == parser.parse("2023-01-03  21:05:00")

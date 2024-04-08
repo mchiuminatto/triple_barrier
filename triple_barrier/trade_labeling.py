@@ -7,10 +7,10 @@ from triple_barrier import constants
 from triple_barrier.orders import BoxBuilder
 from triple_barrier.orders import Orders
 from triple_barrier.orders import OrdersBox
-from triple_barrier.multi_barrier_types import OrderBoxHit
-from triple_barrier.multi_barrier_types import OrderHit
-from triple_barrier.multi_barrier_types import OrderType
-from triple_barrier.multi_barrier_types import TradeSide
+from triple_barrier.types import OrderBoxHits
+from triple_barrier.types import OrderHit
+from triple_barrier.types import OrderType
+from triple_barrier.types import TradeSide
 
 
 class Labeler:
@@ -33,7 +33,7 @@ class Labeler:
         box_builder: BoxBuilder = BoxBuilder()
         self.multi_barrier_box: OrdersBox = box_builder.build_multi_barrier_box(box_setup)
 
-        self.multi_barrier_hit: OrderBoxHit = OrderBoxHit()
+        self.orders_hit: OrderBoxHits = OrderBoxHits()
 
         self._take_profit_barrier: TakeProfit | None = None
         self._stop_loss_barrier: StopLoss | None = None
@@ -78,39 +78,39 @@ class Labeler:
             if self.dynamic_exit is not None:
                 self._compute_dynamic_barrier()
             self._select_first_hit()
-            return self.multi_barrier_hit
+            return self.orders_hit
         except Exception as error_instance:
             raise Exception(str(error_instance))
 
     def _compute_take_profit_barrier(self):
 
         self._take_profit_barrier.compute()
-        self.multi_barrier_hit.barriers.append(self._take_profit_barrier.barrier)
+        self.orders_hit.barriers.append(self._take_profit_barrier.barrier)
 
     def _compute_stop_loss_barrier(self):
 
         self._stop_loss_barrier.compute()
-        self.multi_barrier_hit.barriers.append(self._stop_loss_barrier.barrier)
+        self.orders_hit.barriers.append(self._stop_loss_barrier.barrier)
 
     def _compute_time_barrier(self):
 
         self._time_barrier.compute()
-        self.multi_barrier_hit.barriers.append(self._time_barrier.barrier)
+        self.orders_hit.barriers.append(self._time_barrier.barrier)
 
     def _compute_dynamic_barrier(self):
 
         self._dynamic_barrier.compute()
-        self.multi_barrier_hit.barriers.append(self._dynamic_barrier.barrier)
+        self.orders_hit.barriers.append(self._dynamic_barrier.barrier)
 
     def _select_first_hit(self):
         first_hit: OrderHit | None = None
-        for barrier in self.multi_barrier_hit.barriers:
+        for barrier in self.orders_hit.barriers:
             if first_hit is None:
                 first_hit = barrier
             else:
                 if barrier.hit_datetime < first_hit.hit_datetime:
                     first_hit = barrier
-        self.multi_barrier_hit.first_hit = first_hit
+        self.orders_hit.first_hit = first_hit
 
 
 class TakeProfit:
@@ -218,7 +218,7 @@ class TimeBarrier:
         self.open_price: pd.Series = open_price
         self.open_datetime: datetime = open_datetime
 
-        self.barrier = OrderHit(order_type=OrderType.TIME_BARRIER, hit_datetime=time_limit_date)
+        self.barrier = OrderHit(order_type=OrderType.TIME_EXPIRATION, hit_datetime=time_limit_date)
 
     def compute(self):
         self._compute_hit_level()

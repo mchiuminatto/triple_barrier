@@ -5,7 +5,7 @@ from datetime import datetime
 class OrderType(Enum):
     TAKE_PROFIT = "take-profit"
     STOP_LOSS = "stop-loss"
-    TIME_BARRIER = "time-expiration"
+    TIME_EXPIRATION = "time-expiration"
     DYNAMIC = "dynamic"
 
 
@@ -47,5 +47,3 @@ class OrderBoxHits:
         self.first_hit: OrderHit = OrderHit()
 
     # TODO: Implement a good string representation
-
-

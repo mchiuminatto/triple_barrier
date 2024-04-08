@@ -165,3 +165,6 @@ docs/.$models.drawio.dtmp
 
 # Images
 /*.png
+
+# draw.io
+*.bkp

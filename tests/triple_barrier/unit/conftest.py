@@ -23,6 +23,3 @@ def prepare_price_data() -> pd.DataFrame:
 @pytest.fixture
 def prepare_price_data_short() -> pd.DataFrame:
     return calculate_test_features_short()
-
-
-
