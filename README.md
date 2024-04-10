@@ -25,9 +25,6 @@ This project emerges from a repeated trading strategy back-testing process where
 and pasting from previous pipelines the code to perform a vectorized (semi-vectorized to be more accurate) labeling of 
 trades. To avoid this DRY (Do not Repeat Yourself) routine, that is why I decided to move this code to a library.
 
-The name and core idea were inspired by an algorithm found in the book: Advances in Financial Machine Learning, by Marcos
-Lopez de Prado.
-
 Before moving further into the library details a little bit of context.
 
 ### Trading Strategies
