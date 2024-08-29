@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "triple-barrier"
-version = "0.4.3rc"
+version = "0.4.6rc"
 authors = [
     {name="Marcello Chiuminatto", email="mch@thequantick.net"},
 ]
@@ -17,11 +17,11 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-                "pytest==8.0.0",
-                "pandas==2.2.0",
+                "pytest>=8",
+                "pandas>=2.2",
                 "mplfinance==0.12.10b0",
                 "matplotlib==3.8.2",
-                "pyarrow==15.0.0",
+                "pyarrow>=16.0",
     ]
 
 [tool.setuptools]
