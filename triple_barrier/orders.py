@@ -1,5 +1,17 @@
 """
-Implements a Builder parameter for the MultiBarrierBox
+Implements the data and behavioral classes that builds
+the parameters the trade labeler understands from the paramaeters the 
+clients understand.
+
+
+The central concept are the Orders a multipla barrier is made of:
+
+- Open: Order to open a trade
+- Take Profit: Closing order on take profit
+- Stop Loss: Closing order on stop loss
+- Time Barrier: Closing order after a fix number of periods
+- Dynamic Barrier: Closing order that depends on a condition
+
 """
 
 from datetime import datetime
@@ -10,6 +22,12 @@ from triple_barrier.types import TradeSide
 
 
 class Orders:
+
+    """
+    Data class with the MultiBarrier parameters client's understand. Provides 
+    some degrees of freedom to define some of the parameters like take profit 
+    and stop loss where a level or a with can be provided
+    """
 
     def __init__(self):
         self.open_time: str | None = None
@@ -36,6 +54,11 @@ class Orders:
 
 
 class OrdersBox:
+
+    """
+    Data class with the parameters the MultibarrierInternally understands
+
+    """
 
     def __init__(self,
                  trade_side: TradeSide,
@@ -69,6 +92,14 @@ class OrdersBox:
 
 
 class BoxBuilder:
+
+    """
+    Class that transform the MultibarrierParameters from what the clients understand (Orders)
+    to what MultiBarrier internally understand (OrdersBox).
+
+    It enforeces some validations for the optional parameters Orders allow.
+    
+    """
 
     def __init__(self):
         self._open_datetime: datetime | None = None
@@ -118,7 +149,8 @@ class BoxBuilder:
                   stop_loss_width: float = None,
                   stop_loss_level: float = None,
                   pip_decimal_position: float = None):
-
+        
+        # TODO: TB-27 Fix dead code conditions
         if stop_loss_width is not None and stop_loss_level is not None:
             raise ValueError("Either stop_loss_level or stop_loss_width can be specified but not both")
         if pip_decimal_position is None:
