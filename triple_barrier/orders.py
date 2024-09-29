@@ -1,6 +1,6 @@
 """
 Implements the data and behavioral classes that builds
-the parameters the trade labeler understands from the paramaeters the 
+the parameters the trade labeler understands from the parameters the
 clients understand.
 
 
@@ -22,10 +22,9 @@ from triple_barrier.types import TradeSide
 
 
 class Orders:
-
     """
-    Data class with the MultiBarrier parameters client's understand. Provides 
-    some degrees of freedom to define some of the parameters like take profit 
+    Data class that defines the MultiBarrier parameters client's understand.
+    Provides some degrees of freedom to define some of the parameters like take profit
     and stop loss where a level or a with can be provided
     """
 
@@ -54,9 +53,8 @@ class Orders:
 
 
 class OrdersBox:
-
     """
-    Data class with the parameters the MultibarrierInternally understands
+    Data class with the parameters the MultiBarrier Internally understands
 
     """
 
@@ -92,12 +90,11 @@ class OrdersBox:
 
 
 class BoxBuilder:
-
     """
-    Class that transform the MultibarrierParameters from what the clients understand (Orders)
+    Class that transform the Multibarrier Parameters from what the clients understand (Orders)
     to what MultiBarrier internally understand (OrdersBox).
 
-    It enforeces some validations for the optional parameters Orders allow.
+    It enforces some validations for the optional parameters that Orders allow
     
     """
 
@@ -113,6 +110,14 @@ class BoxBuilder:
     def build_multi_barrier_box(self,
                                 orders: Orders
                                 ) -> OrdersBox:
+
+        """
+        Receives Orders structure, which is known outside (by clients) adn transforms it into
+        OrdersBox, which is known internally by the module.
+
+        :param orders: Orders structure known by module clients
+        :return: OrdersBox, known for internal processing.
+        """
 
         self.open_date_time(orders.open_time)
         self.open_price(orders.open_price)
@@ -137,6 +142,7 @@ class BoxBuilder:
                          self._time_limit,
                          self._pip_decimal_position)
 
+    # TODO: make these methods private
     def open_date_time(self, open_date_time: str):
         self._open_datetime = pd.to_datetime(open_date_time)
 
@@ -149,7 +155,7 @@ class BoxBuilder:
                   stop_loss_width: float = None,
                   stop_loss_level: float = None,
                   pip_decimal_position: float = None):
-        
+
         # TODO: TB-27 Fix dead code conditions
         if stop_loss_width is not None and stop_loss_level is not None:
             raise ValueError("Either stop_loss_level or stop_loss_width can be specified but not both")
