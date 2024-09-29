@@ -1,5 +1,17 @@
 """
-Implements a Builder parameter for the MultiBarrierBox
+Implements the data and behavioral classes that builds
+the parameters the trade labeler understands from the parameters the
+clients understand.
+
+
+The central concept are the Orders a multipla barrier is made of:
+
+- Open: Order to open a trade
+- Take Profit: Closing order on take profit
+- Stop Loss: Closing order on stop loss
+- Time Barrier: Closing order after a fix number of periods
+- Dynamic Barrier: Closing order that depends on a condition
+
 """
 
 from datetime import datetime
@@ -10,6 +22,11 @@ from triple_barrier.types import TradeSide
 
 
 class Orders:
+    """
+    Data class that defines the MultiBarrier parameters client's understand.
+    Provides some degrees of freedom to define some of the parameters like take profit
+    and stop loss where a level or a with can be provided
+    """
 
     def __init__(self):
         self.open_time: str | None = None
@@ -36,6 +53,10 @@ class Orders:
 
 
 class OrdersBox:
+    """
+    Data class with the parameters the MultiBarrier Internally understands
+
+    """
 
     def __init__(self,
                  trade_side: TradeSide,
@@ -69,6 +90,13 @@ class OrdersBox:
 
 
 class BoxBuilder:
+    """
+    Class that transform the Multibarrier Parameters from what the clients understand (Orders)
+    to what MultiBarrier internally understand (OrdersBox).
+
+    It enforces some validations for the optional parameters that Orders allow
+    
+    """
 
     def __init__(self):
         self._open_datetime: datetime | None = None
@@ -82,6 +110,14 @@ class BoxBuilder:
     def build_multi_barrier_box(self,
                                 orders: Orders
                                 ) -> OrdersBox:
+
+        """
+        Receives Orders structure, which is known outside (by clients) adn transforms it into
+        OrdersBox, which is known internally by the module.
+
+        :param orders: Orders structure known by module clients
+        :return: OrdersBox, known for internal processing.
+        """
 
         self.open_date_time(orders.open_time)
         self.open_price(orders.open_price)
@@ -106,6 +142,7 @@ class BoxBuilder:
                          self._time_limit,
                          self._pip_decimal_position)
 
+    # TODO: make these methods private
     def open_date_time(self, open_date_time: str):
         self._open_datetime = pd.to_datetime(open_date_time)
 
@@ -119,6 +156,7 @@ class BoxBuilder:
                   stop_loss_level: float = None,
                   pip_decimal_position: float = None):
 
+        # TODO: TB-27 Fix dead code conditions
         if stop_loss_width is not None and stop_loss_level is not None:
             raise ValueError("Either stop_loss_level or stop_loss_width can be specified but not both")
         if pip_decimal_position is None:
