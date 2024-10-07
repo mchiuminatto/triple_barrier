@@ -23,7 +23,7 @@ from triple_barrier.types import TradeSide
 
 class Orders:
     """
-    Data class that defines the MultiBarrier parameters client's understand.
+    Data class that defines the MultiBarrier parameters clients understand.
     Provides some degrees of freedom to define some of the parameters like take profit
     and stop loss where a level or a with can be provided
     """

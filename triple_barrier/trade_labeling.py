@@ -211,6 +211,7 @@ class StopLoss:
 class TimeBarrier:
     # TODO: deal with no time barrier
     # TODO: deal with time barrier beyond last time series date
+
     def __init__(self,
                  open_price: pd.Series,
                  time_limit_date: datetime,
@@ -228,7 +229,7 @@ class TimeBarrier:
 
         open_price = self.open_price[self.open_datetime:]
         if self.barrier.hit_datetime != constants.INFINITE_DATE:
-            hit_level = open_price[self.barrier.hit_datetime:].iloc[1]
+            hit_level = open_price[self.barrier.hit_datetime:].iloc[0]
 
         self.barrier.level = hit_level
 

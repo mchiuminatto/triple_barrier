@@ -79,6 +79,29 @@ Or to this Jupyter Notebook that combines triple barrier calculation with plotti
 [Triple Barrier Jupyter Notebook](./docs/plot-method-tests.ipynb)
 
 
+### How trade closing is calculated
+
+The trade closing occurs when the first of the following events occur: price hits stop loss, take profit, dynamic barrier
+or the time reaches the trade expiration date time. The event that occurs first is called the closing event.
+
+The closing price is calculated as follows depending on the closing event.
+
+**Stop Loss and Take Profit**: For these two cases, closing price is the one specified as a level or as a distance from 
+opening price, which is internally transformed to a price level.
+
+**Time barrier:** The closing price is the opening price for the period that starts at the expiration date time.
+
+There is one exception for this case though, and it is the case when the number of periods for the trade expiration
+exceeds the limit of the time series. In this case the last date of the time series will be used as time barrier. 
+
+This situation will happen only for the last trade, so you can discard it in case you foind this is not suitable for
+your analysis.
+
+**Dynamic Barrier**: The dynamic barrier is a condition that when reached, triggers the position closing. The condition
+is evaluated at the closing of each period. In this case then, the closing price is the opening price of the period 
+right next the one when the condition was evaluated as positive.
+
+
 ### Examples
 
 This is a work in progress, but you can find some examples here:
