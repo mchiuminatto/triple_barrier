@@ -3,6 +3,7 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
+
 from triple_barrier import constants
 from triple_barrier.orders import BoxBuilder
 from triple_barrier.orders import Orders
@@ -11,6 +12,7 @@ from triple_barrier.types import OrderBoxHits
 from triple_barrier.types import OrderHit
 from triple_barrier.types import OrderType
 from triple_barrier.types import TradeSide
+from triple_barrier.trading import TradingParameters
 
 
 class Labeler:
@@ -219,7 +221,14 @@ class TimeBarrier:
         self.open_price: pd.Series = open_price
         self.open_datetime: datetime = open_datetime
 
-        self.barrier = OrderHit(order_type=OrderType.TIME_EXPIRATION, hit_datetime=time_limit_date)
+        expiration_datetime: datetime
+
+        if time_limit_date > open_price.index[-1]:
+            expiration_datetime: datetime = constants.INFINITE_DATE
+        else:
+            expiration_datetime = time_limit_date
+
+        self.barrier = OrderHit(order_type=OrderType.TIME_EXPIRATION, hit_datetime=expiration_datetime)
 
     def compute(self):
         self._compute_hit_level()

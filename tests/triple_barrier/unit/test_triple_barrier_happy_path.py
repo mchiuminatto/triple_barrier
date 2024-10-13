@@ -107,7 +107,7 @@ class TestTripleBarrier:
                                   )
         barrier_builder.compute()
         assert barrier_builder.orders_hit.first_hit.order_type == OrderType.TIME_EXPIRATION
-        assert barrier_builder.orders_hit.first_hit.level == df["open"]["2023-01-02 23:00:00":].iloc[1]
+        assert barrier_builder.orders_hit.first_hit.level == df["open"]["2023-01-02 23:00:00":].iloc[0]
         assert barrier_builder.orders_hit.first_hit.hit_datetime == parser.parse("2023-01-02 23:00:00")
 
     def test_full_barrier_time_barrier_hit_long(self, prepare_price_data):
@@ -141,7 +141,7 @@ class TestTripleBarrier:
 
         barrier_builder.compute()
         assert barrier_builder.orders_hit.first_hit.order_type == OrderType.TIME_EXPIRATION
-        assert barrier_builder.orders_hit.first_hit.level == df["open"]["2023-01-02 21:35:00":].iloc[1]
+        assert barrier_builder.orders_hit.first_hit.level == df["open"]["2023-01-02 21:35:00":].iloc[0]
         assert barrier_builder.orders_hit.first_hit.hit_datetime == parser.parse("2023-01-02 21:35:00")
 
     def test_full_barrier_dynamic_hit_long(self, prepare_price_data):

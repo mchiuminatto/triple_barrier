@@ -94,7 +94,7 @@ opening price, which is internally transformed to a price level.
 There is one exception for this case though, and it is the case when the number of periods for the trade expiration
 exceeds the limit of the time series. In this case the last date of the time series will be used as time barrier. 
 
-This situation will happen only for the last trade, so you can discard it in case you foind this is not suitable for
+This situation will happen only for the last trade, so you can discard it in case you find this is not suitable for
 your analysis.
 
 **Dynamic Barrier**: The dynamic barrier is a condition that when reached, triggers the position closing. The condition
