@@ -12,7 +12,6 @@ from triple_barrier.types import OrderBoxHits
 from triple_barrier.types import OrderHit
 from triple_barrier.types import OrderType
 from triple_barrier.types import TradeSide
-from triple_barrier.trading import TradingParameters
 
 
 class Labeler:

@@ -7,20 +7,26 @@ a Pandas dataset
 from dataclasses import dataclass
 import pandas as pd
 
+
 from .trade_labeling import TradeSide
 from .orders import Orders
 from .trade_labeling import Labeler
+import triple_barrier.constants as const
 
 
 @dataclass
 class TradingParameters:
-    entry_column: pd.Series
+    open_price: pd.DataFrame
+    high_price: pd.DataFrame
+    low_price: pd.DataFrame
+    close_price: pd.DataFrame
+    entry_mark: pd.DataFrame
     stop_loss_width: float
     take_profit_width: float
     trade_side: TradeSide
     pip_decimal_position: int
     time_barrier_periods: int
-    dynamic_exit: pd.Series
+    dynamic_exit: pd.Series | None = None
 
 
 class DataSetLabeler:
@@ -29,17 +35,42 @@ class DataSetLabeler:
     on a Pandas dataset, avoiding the user some validations.
     """
 
-    def __init__(self,
-                 open: pd.Series,
-                 high: pd.Series,
-                 low: pd.Series,
-                 close: pd.Series
-                 ):
-        self._ohlc: pd.DataFrame = pd.DataFrame([open, high, low, close])
+    def __init__(self, trading_setup: TradingParameters):
 
-    def compute(self, trade_parameters: TradingParameters):
-        # TODO: Implement this methd with the apply on the pandas dataset 
-        pass
+        self._trading_setup = trading_setup
+
+        ohlc_series: dict = {
+                                   "open": trading_setup.open_price,
+                                   "high": trading_setup.high_price,
+                                   "low": trading_setup.low_price,
+                                   "close": trading_setup.close_price,
+                                   "entry": trading_setup.entry_mark
+                                   }
+
+        if trading_setup.dynamic_exit is not None:
+            ohlc_series["exit"] = trading_setup.dynamic_exit
+
+        self._ohlc: pd.DataFrame = pd.DataFrame(ohlc_series)
+
+
+    def compute(self) -> pd.DataFrame:
+
+        entry_only: pd.Series = self._ohlc[(self._ohlc.entry == 1)].copy(deep=True)
+
+        trades = entry_only.apply(self._calculate_exit,
+                                  args=(
+                                      self._trading_setup.stop_loss_width,
+                                      self._trading_setup.take_profit_width,
+                                      self._trading_setup.trade_side,
+                                      self._trading_setup.pip_decimal_position,
+                                      self._trading_setup.time_barrier_periods
+                                  ),
+                                  axis=1
+                                  )
+
+
+        trades["profit"] = (trades["open"] - trades["close-price"]) * 10 ** self._trading_setup.pip_decimal_position
+        return trades
 
     def _calculate_exit(self,
                         row: any,
@@ -52,20 +83,25 @@ class DataSetLabeler:
             box_setup = Orders()
 
             box_setup.open_time = str(row.name)
-            box_setup.open_price = self._ohlc.loc[box_setup.open_time][self._ohlc.columns[0]]
+            box_setup.open_price = self._ohlc.loc[box_setup.open_time].open
             box_setup.take_profit_width = take_profit_width
             box_setup.stop_loss_width = stop_loss_width
+
             max_period_limit: int = min(time_barrier_periods, len(self._ohlc[box_setup.open_time:].index) - 1)
 
             box_setup.time_limit = self._ohlc[box_setup.open_time:].index[max_period_limit]
             box_setup.trade_side = trade_side
             box_setup.pip_decimal_position = pip_decimal_position
 
-            barrier_builder = Labeler(open_price=self._ohlc[self._ohlc.columns[0]],
-                                      high_price=self._ohlc[self._ohlc.columns[1]],
-                                      low_price=self._ohlc[self._ohlc.columns[2]],
-                                      close_price=self._ohlc[self._ohlc.columns[3]],
-                                      dynamic_exit=self._ohlc["exit"],
+            dynamic_exit: pd.DataFrame | None = None
+            if self._trading_setup.dynamic_exit is not None:
+                dynamic_exit = self._ohlc[const.EXIT]
+
+            barrier_builder = Labeler(open_price=self._ohlc[const.OPEN],
+                                      high_price=self._ohlc[const.HIGH],
+                                      low_price=self._ohlc[const.LOW],
+                                      close_price=self._ohlc[const.CLOSE],
+                                      dynamic_exit=dynamic_exit,
                                       box_setup=box_setup
                                       )
             barrier_builder.compute()

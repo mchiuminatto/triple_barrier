@@ -7,6 +7,8 @@ OPEN = "open"
 HIGH = "high"
 LOW = "low"
 CLOSE = "close"
+ENTRY = "entry"
+EXIT = "exit"
 
 INFINITE_DATE = datetime(datetime.now().year + 1000, month=1, day=1)
 
