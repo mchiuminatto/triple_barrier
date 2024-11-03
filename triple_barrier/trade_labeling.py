@@ -1,8 +1,23 @@
+"""
+Class that calculates a single trade result based on the order setup specified by the
+following parameters
+
+- stop loss
+- take profit
+- expiration date or periods
+- dynamic exit
+
+It calculates the trade result starting form a datetime (opening datetime) to finally get
+a hit datetime and hit price based on the parameters described above.
+
+"""
+
+
+
 from datetime import datetime
 
 import pandas as pd
 import numpy as np
-
 
 from triple_barrier import constants
 from triple_barrier.orders import BoxBuilder
@@ -21,6 +36,7 @@ class Labeler:
                  high_price: pd.Series,
                  low_price: pd.Series,
                  close_price: pd.Series,
+                 # TODO: Move the box_setup to the compute method
                  box_setup: Orders,
                  dynamic_exit: pd.Series | None = None
                  ) -> None:
@@ -71,17 +87,25 @@ class Labeler:
                                              open_datetime=self.multi_barrier_box.open_datetime
                                              )
 
-    def compute(self):
-        try:
-            self._compute_take_profit_barrier()
-            self._compute_stop_loss_barrier()
-            self._compute_time_barrier()
-            if self.dynamic_exit is not None:
-                self._compute_dynamic_barrier()
-            self._select_first_hit()
-            return self.orders_hit
-        except Exception as error_instance:
-            raise Exception(str(error_instance))
+    def compute(self) -> OrderBoxHits:
+        """
+        Calculates the close price for a trade based on the order setup specified in the box_setup.
+
+        :param
+        box_setup: Is a structure that contains all the hits in the barriers (orders) and the first one
+        to occur.
+
+        :return:
+        order_hit: Structure returning all the barriers hists and the first one to occur.
+        """
+
+        self._compute_take_profit_barrier()
+        self._compute_stop_loss_barrier()
+        self._compute_time_barrier()
+        if self.dynamic_exit is not None:
+            self._compute_dynamic_barrier()
+        self._select_first_hit()
+        return self.orders_hit
 
     def _compute_take_profit_barrier(self):
 

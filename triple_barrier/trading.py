@@ -7,7 +7,6 @@ a Pandas dataset
 from dataclasses import dataclass
 import pandas as pd
 
-
 from .trade_labeling import TradeSide
 from .orders import Orders
 from .trade_labeling import Labeler
@@ -40,18 +39,19 @@ class DataSetLabeler:
         self._trading_setup = trading_setup
 
         ohlc_series: dict = {
-                                   "open": trading_setup.open_price,
-                                   "high": trading_setup.high_price,
-                                   "low": trading_setup.low_price,
-                                   "close": trading_setup.close_price,
-                                   "entry": trading_setup.entry_mark
-                                   }
+            "open": trading_setup.open_price,
+            "high": trading_setup.high_price,
+            "low": trading_setup.low_price,
+            "close": trading_setup.close_price,
+            "entry": trading_setup.entry_mark
+        }
 
         if trading_setup.dynamic_exit is not None:
             ohlc_series["exit"] = trading_setup.dynamic_exit
 
         self._ohlc: pd.DataFrame = pd.DataFrame(ohlc_series)
 
+        self._profit_precision = 2
 
     def compute(self) -> pd.DataFrame:
 
@@ -68,8 +68,6 @@ class DataSetLabeler:
                                   axis=1
                                   )
 
-
-        trades["profit"] = (trades["open"] - trades["close-price"]) * 10 ** self._trading_setup.pip_decimal_position
         return trades
 
     def _calculate_exit(self,
@@ -109,6 +107,12 @@ class DataSetLabeler:
             row["close-price"] = barrier_builder.orders_hit.first_hit.level
             row["close-datetime"] = barrier_builder.orders_hit.first_hit.hit_datetime
             row["close-type"] = barrier_builder.orders_hit.first_hit.order_type.value
+            row["profit"] = (trade_side.value * (
+                    row["close-price"] - row["open"]) * 10 ** self._trading_setup.pip_decimal_position).__round__(
+                self._profit_precision)
+
+
+
 
         except Exception as exp_instance:
             print(str(exp_instance))
