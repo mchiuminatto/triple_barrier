@@ -1,14 +1,12 @@
-from venv import logger
 
 import pandas as pd
 
-from tests.triple_barrier.integration.test_triple_barrier_apply_happy_path import OUTPUT_FOLDER
 from triple_barrier.trading import DataSetLabeler
 from triple_barrier.trade_labeling import TradeSide
 from triple_barrier.trading import TradingParameters
 import triple_barrier.constants as const
 
-OUTPUT_FOLDER: str  = f"{const.ROOT_FOLDER}/tests/triple_barrier/integration/output/"
+OUTPUT_FOLDER: str = f"{const.ROOT_FOLDER}/tests/triple_barrier/integration/output/"
 
 
 class TestTripleBarrierApply:
@@ -49,9 +47,8 @@ class TestTripleBarrierApply:
             else:
                 assert row[1]["profit"] == 40.00
 
-
     def test_short(self,
-                  prepare_price_data):
+                   prepare_price_data):
 
         df = prepare_price_data
 

@@ -135,7 +135,7 @@ def calculate_exit(row: any,
         box_setup.open_price = ohlc.loc[box_setup.open_time]["open_bid"]
         box_setup.take_profit_width = take_profit_width
         box_setup.stop_loss_width = stop_loss_width
-        max_period_limit: int = min(time_barrier_periods, len(ohlc[box_setup.open_time:].index)-1)
+        max_period_limit: int = min(time_barrier_periods, len(ohlc[box_setup.open_time:].index) - 1)
 
         box_setup.time_limit = ohlc[box_setup.open_time:].index[max_period_limit]
         box_setup.trade_side = trade_side

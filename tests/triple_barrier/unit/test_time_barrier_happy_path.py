@@ -31,7 +31,6 @@ class TestTimeBarrier:
         time_barrier_periods: int = 20
         time_limit_date: datetime = datetime.now() + timedelta(days=time_barrier_periods)
 
-
         time_barrier = TimeBarrier(open_price=df.open,
                                    time_limit_date=time_limit_date,
                                    open_datetime=trade_open_datetime)

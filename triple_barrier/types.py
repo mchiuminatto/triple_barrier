@@ -56,5 +56,4 @@ class OrderBoxHits:
 
         barrier_hits: list = [str(hit) for hit in self.barriers]
 
-
         return output_str + "\nOther hits \n" + "\n".join(barrier_hits)

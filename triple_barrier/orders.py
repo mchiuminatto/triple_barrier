@@ -95,7 +95,7 @@ class BoxBuilder:
     to what MultiBarrier internally understand (OrdersBox).
 
     It enforces some validations for the optional parameters that Orders allow
-    
+
     """
 
     def __init__(self):

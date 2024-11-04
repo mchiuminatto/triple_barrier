@@ -12,8 +12,6 @@ a hit datetime and hit price based on the parameters described above.
 
 """
 
-
-
 from datetime import datetime
 
 import pandas as pd

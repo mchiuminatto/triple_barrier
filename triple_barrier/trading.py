@@ -111,9 +111,7 @@ class DataSetLabeler:
                     row["close-price"] - row["open"]) * 10 ** self._trading_setup.pip_decimal_position).__round__(
                 self._profit_precision)
 
-
-
-
+        # TODO: remove this
         except Exception as exp_instance:
             print(str(exp_instance))
 
