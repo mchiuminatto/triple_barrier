@@ -104,6 +104,28 @@ right next the one when the condition was evaluated as positive.
 
 ### Examples
 
+
+#### Using triple barrier with Pandas apply method
+
+In this section we analyze a set of case scenarios that will illustrate how to use triple barrier to label trades.
+
+##### Case 1: Long strategy using stop loss, take profit and time expiration orders.
+
+##### Case 2: Short strategy using stop loss, take profit and time expiration orders.
+
+
+##### Case 3: Long strategy using stop loss, take profit, time expiration and dynamic exit orders.
+
+
+##### Case 4: Short strategy using trailing stop
+
+#### Using triple barrier to calculate individual trades
+
+
+#### Plotting trades
+
+
+
 This is a work in progress, but you can find some examples here:
 
 You can see use case examples in this [folder](./docs/examples)
