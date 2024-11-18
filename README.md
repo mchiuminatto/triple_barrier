@@ -110,7 +110,7 @@ producing strategy related data and the trade setup.
 
 Below, one example of how the vectorization wrapper works.  
 
-You can find more examples in the following jupyter notebook.
+You can find more examples in the following jupyter notebook: [Apply Scenarios.ipynb](docs/examples/Apply%20Scenarios.ipynb)
 
 ### Strategy
 
