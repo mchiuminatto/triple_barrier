@@ -12,6 +12,8 @@ from .orders import Orders
 from .trade_labeling import Labeler
 import triple_barrier.constants as const
 
+from datetime import datetime
+
 
 @dataclass
 class TradingParameters:
@@ -31,10 +33,12 @@ class TradingParameters:
 class DataSetLabeler:
     """
     Class that makes abstraction of executing an apply function
-    on a Pandas dataset, avoiding the user some validations.
+    on a Pandas dataset, avoiding the user some validations. Facade pattern
     """
 
     def __init__(self, trading_setup: TradingParameters):
+        
+        self.trades: pd.DataFrame | None = None
 
         self._trading_setup = trading_setup
 
@@ -67,8 +71,16 @@ class DataSetLabeler:
                                   ),
                                   axis=1
                                   )
-
+        self.trades = trades
         return trades
+    
+    def plot(trade_date: datetime):
+        """
+        Plot the trade for the specific date
+        :param trade_date: datetime of the trade to plot
+        :return: None
+        """
+        pass
 
     def _calculate_exit(self,
                         row: any,
