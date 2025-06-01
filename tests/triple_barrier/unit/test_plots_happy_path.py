@@ -22,4 +22,5 @@ class TestPlots:
         assert (ohlc[constants.LOW] - df[constants.LOW]).sum() == 0
         assert (ohlc[constants.CLOSE] - df[constants.CLOSE]).sum() == 0
 
-# TODO: Add tests with asserts comparing images
+
+        

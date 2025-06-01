@@ -35,27 +35,36 @@ class DataSetLabeler:
     Class that makes abstraction of executing an apply function
     on a Pandas dataset, avoiding the user some validations. Facade pattern
     """
+    
+    ENTRY = "entry"
+    EXIT = "exit"
+    
+    OPEN = "open"
+    HIGH = "high"
+    LOW = "low"
+    CLOSE = "close"
 
     def __init__(self, trading_setup: TradingParameters):
         
         self.trades: pd.DataFrame | None = None
-
         self._trading_setup = trading_setup
-
         ohlc_series: dict = {
-            "open": trading_setup.open_price,
-            "high": trading_setup.high_price,
-            "low": trading_setup.low_price,
-            "close": trading_setup.close_price,
-            "entry": trading_setup.entry_mark
+            self.OPEN: trading_setup.open_price,
+            self.CLOSE: trading_setup.high_price,
+            self.LOW: trading_setup.low_price,
+            self.CLOSE: trading_setup.close_price,
+            self.ENTRY: trading_setup.entry_mark
         }
 
+        self._exit_specified: bool = False
         if trading_setup.dynamic_exit is not None:
-            ohlc_series["exit"] = trading_setup.dynamic_exit
+            ohlc_series[self.EXIT] = trading_setup.dynamic_exit
+            self._exit_specified = True
+        
 
         self._ohlc: pd.DataFrame = pd.DataFrame(ohlc_series)
 
-        self._profit_precision = 2
+        self._profit_precision = 2  # TODO move this to a prameter or constant
 
     def compute(self) -> pd.DataFrame:
 
@@ -72,15 +81,7 @@ class DataSetLabeler:
                                   axis=1
                                   )
         self.trades = trades
-        return trades
-    
-    def plot(trade_date: datetime):
-        """
-        Plot the trade for the specific date
-        :param trade_date: datetime of the trade to plot
-        :return: None
-        """
-        pass
+        return trades        
 
     def _calculate_exit(self,
                         row: any,
@@ -128,3 +129,37 @@ class DataSetLabeler:
             print(str(exp_instance))
 
         return row
+
+
+    def plot(self, trade_date: datetime):
+        """
+        Plot the trade for the specific date
+        :param trade_date: datetime of the trade to plot
+        :return: None
+        """
+        # setup barrier builder
+        box_setup = Orders()
+        box_setup.open_time = trade_date
+        box_setup.open_price = self._ohlc.loc[box_setup.open_time].open
+        box_setup.take_profit_width = self._trading_setup.take_profit_width
+        box_setup.stop_loss_width = self._trading_setup.stop_loss_width
+        box_setup.time_limit = self._ohlc[box_setup.open_time:].index[self._trading_setup.time_barrier_periods]
+        box_setup.trade_side = self._trading_setup.trade_side
+        box_setup.pip_decimal_position =  self._trading_setup.pip_decimal_position
+        
+        
+        # compute barrier builder
+        
+        barrier_builder = Labeler(open_price=self._ohlc.open,
+                               high_price=self._ohlc.high,
+                               low_price=self._ohlc.low,
+                               close_price=self._ohlc.close,
+                               dynamic_exit=self._ohlc[self.EXIT] if self._exit_specified in self._ohlc.columns else None,
+                               box_setup=box_setup
+                               )
+        
+        barrier_builder.compute()
+                
+                # plot the trade
+                
+                # return image

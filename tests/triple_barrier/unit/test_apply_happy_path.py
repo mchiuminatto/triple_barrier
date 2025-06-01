@@ -6,7 +6,13 @@ from triple_barrier.trade_labeling import TradeSide
 from triple_barrier.trading import TradingParameters
 import triple_barrier.constants as const
 
+from PIL import Image
+
 OUTPUT_FOLDER: str = f"{const.ROOT_FOLDER}/tests/triple_barrier/integration/output/"
+TAKE_PROFIT_WIDTH = 10
+STOP_LOSS_WIDTH = 5
+PIP_DECIMAL_POSITION = 4
+TIME_BARRIER_PERIODS = 10
 
 
 class TestTripleBarrierApply:
@@ -79,3 +85,71 @@ class TestTripleBarrierApply:
                 assert row[1]["profit"] == -20.00
             else:
                 assert row[1]["profit"] == 40.00
+
+
+
+    def test_long_plot(self,
+                   prepare_price_data):
+        
+        df = prepare_price_data
+
+        trade_params = TradingParameters(
+            open_price=df.open,
+            high_price=df.high,
+            low_price=df.low,
+            close_price=df.close,
+            entry_mark=df.entry,
+            stop_loss_width=STOP_LOSS_WIDTH,
+            take_profit_width=TAKE_PROFIT_WIDTH,
+            trade_side=TradeSide.LONG,
+            pip_decimal_position=PIP_DECIMAL_POSITION,
+            time_barrier_periods=TIME_BARRIER_PERIODS,
+            dynamic_exit=None
+        )
+
+        dataset_labeler = DataSetLabeler(trade_params)
+
+        trades: pd.DataFrame = dataset_labeler.compute()
+        
+        image = dataset_labeler.plot(trade_date=trades.index[0])
+        
+        try:
+            reference_image = Image.open(f"{OUTPUT_FOLDER}/long.png")
+        except FileNotFoundError:
+            reference_image = None
+            
+        assert image.size == reference_image.size
+            
+        
+    def test_short_plot(self,
+                prepare_price_data):
+    
+        df = prepare_price_data
+
+        trade_params = TradingParameters(
+            open_price=df.open,
+            high_price=df.high,
+            low_price=df.low,
+            close_price=df.close,
+            entry_mark=df.entry,
+            stop_loss_width=STOP_LOSS_WIDTH,
+            take_profit_width=TAKE_PROFIT_WIDTH,
+            trade_side=TradeSide.SELL,
+            pip_decimal_position=PIP_DECIMAL_POSITION,
+            time_barrier_periods=TIME_BARRIER_PERIODS,
+            dynamic_exit=None
+        )
+
+        dataset_labeler = DataSetLabeler(trade_params)
+
+        trades: pd.DataFrame = dataset_labeler.compute()
+        
+        image = dataset_labeler.plot(trade_date=trades.index[0]) 
+         
+        try:
+            reference_image = Image.open(f"{OUTPUT_FOLDER}/long.png")
+        except FileNotFoundError:
+            reference_image = None
+            
+        assert image.size == reference_image.size
+        
