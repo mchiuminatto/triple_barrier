@@ -1,4 +1,3 @@
-# TODO: Move all this logic to a single file
 
 from datetime import datetime
 
@@ -23,6 +22,9 @@ class PlotTripleBarrier:
                  close_price: pd.Series,
                  pip_decimal_position: int,
                  overlay_features: list | None = None,
+                 oscillator_features: list | None = None,
+                 save_plot: bool = True,
+                 plot_folder: str = "./",
                  periods_to_plot: int = 50
                  ):
 
@@ -32,6 +34,11 @@ class PlotTripleBarrier:
             self.overlay_features = []
         else:
             self.overlay_features: list = overlay_features
+            
+        if oscillator_features is None:
+            self.oscillator_features = []
+        else:
+            self.oscillator_features: list = oscillator_features
 
         self.ohlc = self.build_ohlc(open_price,
                                     high_price,
@@ -39,6 +46,8 @@ class PlotTripleBarrier:
                                     close_price)
         self.pip_factor = 10 ** (-pip_decimal_position)
         self.barrier_lines: list | None = None
+        self.save_plot: bool = save_plot
+        self.plot_folder = plot_folder
 
     @staticmethod
     def build_ohlc(open_price: pd.Series,
@@ -98,6 +107,16 @@ class PlotTripleBarrier:
                                           marker="8",
                                           label=feature.name,
                                           width=0.5,
+                                          panel=0
+                                          )
+                         )
+            
+        for feature in self.oscillator_features:
+            plots.append(mpf.make_addplot(feature[date_from: date_to],
+                                          type="line",
+                                          label=feature.name,
+                                          width=0.5,
+                                          panel=1
                                           )
                          )
 
@@ -116,17 +135,19 @@ class PlotTripleBarrier:
                            returnfig=True)
 
         self._add_text(barrier, ax, date_from, date_to)
-
-        plt.show()
-
-        # TODO: store binary image in a file to compare with a stored one for testing purposes
+        if self.save_plot:
+            plt.savefig(f"{self.plot_folder}triple_barrier_{entry_period.strftime('%Y-%m-%d %H_%M_%S')}.png")
+            plt.close()
+        else:
+            plt.show()
+        
 
     def _add_closing_event_hit(self,
                                date_from: datetime,
                                date_to: datetime,
                                closing_event: OrderHit) -> dict:
 
-        # move this logic to a function that returns the make_addplot object
+        # TODO: move this logic to a function that returns the make_addplot object
         self.ohlc["temp-dynamic"] = np.nan
         high = (self.ohlc.loc[closing_event.hit_datetime, "high"]
                 + (self.ohlc.loc[closing_event.hit_datetime, "high"]

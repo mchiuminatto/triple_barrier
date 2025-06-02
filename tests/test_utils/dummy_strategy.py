@@ -79,3 +79,4 @@ def calculate_short_signal(price: pd.DataFrame, output_col_name: str):
 def calculate_features(price: pd.DataFrame):
     price["mva-12"] = price["close"].rolling(12).mean().round(5)
     price["mva-24"] = price["close"].rolling(24).mean().round(5)
+    price["awo"] = (price[f"mva-12"] - price[f"mva-24"]).round(5)

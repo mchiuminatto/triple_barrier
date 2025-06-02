@@ -14,6 +14,7 @@ class Strategy(ABC):
     def calculate_features(price: pd.DataFrame, fast_perioids: int, slow_periods: int):
         price[f"mva-{fast_perioids}"] = price["close"].rolling(fast_perioids).mean().round(5)
         price[f"mva-{slow_periods}"] = price["close"].rolling(slow_periods).mean().round(5)
+        price["awo"] = (price[f"mva-{fast_perioids}"] - price[f"mva-{slow_periods}"]).round(5)
         price.dropna(inplace=True)
 
     @abc.abstractmethod

@@ -101,7 +101,7 @@ class TestTripleBarrierApply:
             entry_mark=df.entry,
             stop_loss_width=STOP_LOSS_WIDTH,
             take_profit_width=TAKE_PROFIT_WIDTH,
-            trade_side=TradeSide.LONG,
+            trade_side=TradeSide.BUY,
             pip_decimal_position=PIP_DECIMAL_POSITION,
             time_barrier_periods=TIME_BARRIER_PERIODS,
             dynamic_exit=None
@@ -111,14 +111,24 @@ class TestTripleBarrierApply:
 
         trades: pd.DataFrame = dataset_labeler.compute()
         
-        image = dataset_labeler.plot(trade_date=trades.index[0])
+        dataset_labeler.plot(trade_date=trades.index[0],
+                                     overlay_features=[df["mva-12"], df["mva-24"]],
+                                     oscillator_features=[df["awo"]],
+                                     save_plot=True,
+                                     plot_folder=OUTPUT_FOLDER)
         
         try:
-            reference_image = Image.open(f"{OUTPUT_FOLDER}/long.png")
+            reference_image = Image.open(f"{OUTPUT_FOLDER}/long_reference.png")
         except FileNotFoundError:
             reference_image = None
             
-        assert image.size == reference_image.size
+        try:
+            produced_image = Image.open(f"{OUTPUT_FOLDER}/triple_barrier_2023-01-02 08_05_00.png")
+        except FileNotFoundError:
+            reference_image = None
+        
+        assert reference_image.size == produced_image.size
+  
             
         
     def test_short_plot(self,
@@ -144,12 +154,21 @@ class TestTripleBarrierApply:
 
         trades: pd.DataFrame = dataset_labeler.compute()
         
-        image = dataset_labeler.plot(trade_date=trades.index[0]) 
+        dataset_labeler.plot(trade_date=trades.index[1],
+                                     overlay_features=[df["mva-12"], df["mva-24"]],
+                                     oscillator_features=[df["awo"]],
+                                     save_plot=True,
+                                     plot_folder=OUTPUT_FOLDER)
          
         try:
-            reference_image = Image.open(f"{OUTPUT_FOLDER}/long.png")
+            reference_image = Image.open(f"{OUTPUT_FOLDER}/short_reference.png")
         except FileNotFoundError:
             reference_image = None
             
-        assert image.size == reference_image.size
+        try:
+            produced_image = Image.open(f"{OUTPUT_FOLDER}/triple_barrier_2023-01-02 20_45_00.png")
+        except FileNotFoundError:
+            reference_image = None
         
+        assert reference_image.size == produced_image.size
+  

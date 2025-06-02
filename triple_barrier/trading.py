@@ -1,5 +1,5 @@
 """
-This class implements am abstraction for applying a trading setup on
+This class implements an abstraction for applying a trading setup on
 a Pandas dataset
 
 """
@@ -11,6 +11,7 @@ from .trade_labeling import TradeSide
 from .orders import Orders
 from .trade_labeling import Labeler
 import triple_barrier.constants as const
+from triple_barrier.plots import PlotTripleBarrier
 
 from datetime import datetime
 
@@ -50,7 +51,7 @@ class DataSetLabeler:
         self._trading_setup = trading_setup
         ohlc_series: dict = {
             self.OPEN: trading_setup.open_price,
-            self.CLOSE: trading_setup.high_price,
+            self.HIGH: trading_setup.high_price,
             self.LOW: trading_setup.low_price,
             self.CLOSE: trading_setup.close_price,
             self.ENTRY: trading_setup.entry_mark
@@ -67,6 +68,12 @@ class DataSetLabeler:
         self._profit_precision = 2  # TODO move this to a prameter or constant
 
     def compute(self) -> pd.DataFrame:
+        """
+        Wraps the apply function to calculate the trades to simplify the user interface.
+
+        Returns:
+            pd.DataFrame: Dataframe witht the trades calculated
+        """
 
         entry_only: pd.Series = self._ohlc[(self._ohlc.entry == 1)].copy(deep=True)
 
@@ -124,17 +131,29 @@ class DataSetLabeler:
                     row["close-price"] - row["open"]) * 10 ** self._trading_setup.pip_decimal_position).__round__(
                 self._profit_precision)
 
-        # TODO: remove this
-        except Exception as exp_instance:
-            print(str(exp_instance))
+        except KeyError as e:
+            print("Key error:", e)
 
         return row
 
 
-    def plot(self, trade_date: datetime):
+    def plot(self, 
+             trade_date: datetime, 
+             plot_periods: int = 30,
+             overlay_features: list | None = None,
+             oscillator_features: list | None = None,
+             save_plot: bool = False,
+             plot_folder: str = "./"):
         """
-        Plot the trade for the specific date
+        Plot a trade for the specific date
+        
         :param trade_date: datetime of the trade to plot
+        :param plot_periods: number of periods to plot
+        :param overlay_features: list of features to overlay on the plot
+        :param oscilators: list of oscilators to plot in the second panel
+        :param save_plot: boolean to save the plot (or plot it to the output if false)
+        :param plot_folder: folder to save the plot if save_plot is True, default is "./"
+        
         :return: None
         """
         # setup barrier builder
@@ -160,6 +179,20 @@ class DataSetLabeler:
         
         barrier_builder.compute()
                 
-                # plot the trade
+        # plot the trade
                 
-                # return image
+        plot_tb = PlotTripleBarrier(open_price=self._ohlc.open,
+                           high_price=self._ohlc.high,
+                           low_price=self._ohlc.low,
+                           close_price=self._ohlc.close,
+                           pip_decimal_position=self._trading_setup.pip_decimal_position,
+                           periods_to_plot=plot_periods,
+                           overlay_features=overlay_features,
+                           oscillator_features=oscillator_features,
+                           save_plot=save_plot,
+                           plot_folder=plot_folder
+                           )
+        
+        plot_tb.plot_multi_barrier(barrier_builder)        
+                
+        
