@@ -168,3 +168,12 @@ docs/.$models.drawio.dtmp
 
 # draw.io
 *.bkp
+
+# vscode
+.vscode/
+
+
+# firefox
+firefox-local
+
+

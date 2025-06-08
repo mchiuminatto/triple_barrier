@@ -143,7 +143,9 @@ class DataSetLabeler:
              overlay_features: list | None = None,
              oscillator_features: list | None = None,
              save_plot: bool = False,
-             plot_folder: str = "./"):
+             plot_folder: str = "./",
+             periods_before: int = 5,
+             periods_after: int = 5) -> None:
         """
         Plot a trade for the specific date
         
@@ -186,11 +188,12 @@ class DataSetLabeler:
                            low_price=self._ohlc.low,
                            close_price=self._ohlc.close,
                            pip_decimal_position=self._trading_setup.pip_decimal_position,
-                           periods_to_plot=plot_periods,
                            overlay_features=overlay_features,
                            oscillator_features=oscillator_features,
                            save_plot=save_plot,
-                           plot_folder=plot_folder
+                           plot_folder=plot_folder,
+                           periods_after=periods_after,
+                           periods_before=periods_before
                            )
         
         plot_tb.plot_multi_barrier(barrier_builder)        

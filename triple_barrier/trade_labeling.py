@@ -103,6 +103,7 @@ class Labeler:
         if self.dynamic_exit is not None:
             self._compute_dynamic_barrier()
         self._select_first_hit()
+        
         return self.orders_hit
 
     def _compute_take_profit_barrier(self):
