@@ -29,15 +29,16 @@ from triple_barrier.types import TradeSide
 
 class Labeler:
 
-    def __init__(self,
-                 open_price: pd.Series,
-                 high_price: pd.Series,
-                 low_price: pd.Series,
-                 close_price: pd.Series,
-                 # TODO: Move the box_setup to the compute method
-                 box_setup: Orders,
-                 dynamic_exit: pd.Series | None = None
-                 ) -> None:
+    def __init__(
+        self,
+        open_price: pd.Series,
+        high_price: pd.Series,
+        low_price: pd.Series,
+        close_price: pd.Series,
+        # TODO: Move the box_setup to the compute method
+        box_setup: Orders,
+        dynamic_exit: pd.Series | None = None,
+    ) -> None:
 
         self.open: pd.Series = open_price
         self.high: pd.Series = high_price
@@ -46,7 +47,9 @@ class Labeler:
         self.dynamic_exit: pd.Series = dynamic_exit
 
         box_builder: BoxBuilder = BoxBuilder()
-        self.multi_barrier_box: OrdersBox = box_builder.build_multi_barrier_box(box_setup)
+        self.multi_barrier_box: OrdersBox = box_builder.build_multi_barrier_box(
+            box_setup
+        )
 
         self.orders_hit: OrderBoxHits = OrderBoxHits()
 
@@ -58,32 +61,36 @@ class Labeler:
         self._do_initializations()
 
     def _do_initializations(self):
-        self._take_profit_barrier = TakeProfit(open_price=self.open,
-                                               high_price=self.high,
-                                               low_price=self.low,
-                                               close_price=self.close,
-                                               open_datetime=self.multi_barrier_box.open_datetime,
-                                               trade_side=self.multi_barrier_box.trade_side,
-                                               pip_decimal_position=self.multi_barrier_box.pip_decimal_position,
-                                               take_profit=self.multi_barrier_box.take_profit
-                                               )
-        self._stop_loss_barrier = StopLoss(open_price=self.open,
-                                           high_price=self.high,
-                                           low_price=self.low,
-                                           close_price=self.close,
-                                           open_datetime=self.multi_barrier_box.open_datetime,
-                                           trade_side=self.multi_barrier_box.trade_side,
-                                           pip_decimal_position=self.multi_barrier_box.pip_decimal_position,
-                                           stop_loss=self.multi_barrier_box.stop_loss
-                                           )
-        self._time_barrier = TimeBarrier(open_price=self.open,
-                                         time_limit_date=self.multi_barrier_box.time_limit,
-                                         open_datetime=self.multi_barrier_box.open_datetime
-                                         )
-        self._dynamic_barrier = DynamicOrder(open_price=self.open,
-                                             exit_signals=self.dynamic_exit,
-                                             open_datetime=self.multi_barrier_box.open_datetime
-                                             )
+        self._take_profit_barrier = TakeProfit(
+            open_price=self.open,
+            high_price=self.high,
+            low_price=self.low,
+            close_price=self.close,
+            open_datetime=self.multi_barrier_box.open_datetime,
+            trade_side=self.multi_barrier_box.trade_side,
+            pip_decimal_position=self.multi_barrier_box.pip_decimal_position,
+            take_profit=self.multi_barrier_box.take_profit,
+        )
+        self._stop_loss_barrier = StopLoss(
+            open_price=self.open,
+            high_price=self.high,
+            low_price=self.low,
+            close_price=self.close,
+            open_datetime=self.multi_barrier_box.open_datetime,
+            trade_side=self.multi_barrier_box.trade_side,
+            pip_decimal_position=self.multi_barrier_box.pip_decimal_position,
+            stop_loss=self.multi_barrier_box.stop_loss,
+        )
+        self._time_barrier = TimeBarrier(
+            open_price=self.open,
+            time_limit_date=self.multi_barrier_box.time_limit,
+            open_datetime=self.multi_barrier_box.open_datetime,
+        )
+        self._dynamic_barrier = DynamicOrder(
+            open_price=self.open,
+            exit_signals=self.dynamic_exit,
+            open_datetime=self.multi_barrier_box.open_datetime,
+        )
 
     def compute(self) -> OrderBoxHits:
         """
@@ -103,7 +110,7 @@ class Labeler:
         if self.dynamic_exit is not None:
             self._compute_dynamic_barrier()
         self._select_first_hit()
-        
+
         return self.orders_hit
 
     def _compute_take_profit_barrier(self):
@@ -139,16 +146,17 @@ class Labeler:
 
 class TakeProfit:
 
-    def __init__(self,
-                 open_price: pd.Series,
-                 high_price: pd.Series,
-                 low_price: pd.Series,
-                 close_price: pd.Series,
-                 open_datetime: datetime,
-                 trade_side: TradeSide,
-                 pip_decimal_position: int,
-                 take_profit: float | None = None
-                 ):
+    def __init__(
+        self,
+        open_price: pd.Series,
+        high_price: pd.Series,
+        low_price: pd.Series,
+        close_price: pd.Series,
+        open_datetime: datetime,
+        trade_side: TradeSide,
+        pip_decimal_position: int,
+        take_profit: float | None = None,
+    ):
 
         self._open_price: pd.Series = open_price
         self._high_price: pd.Series = high_price
@@ -158,8 +166,9 @@ class TakeProfit:
         self._trade_side: TradeSide = trade_side
         self._pip_decimal_position: int = pip_decimal_position
 
-        self.barrier: OrderHit = OrderHit(order_type=OrderType.TAKE_PROFIT,
-                                          level=take_profit)
+        self.barrier: OrderHit = OrderHit(
+            order_type=OrderType.TAKE_PROFIT, level=take_profit
+        )
 
     def compute(self):
         self._compute_next_take_profit_hit()
@@ -187,16 +196,17 @@ class TakeProfit:
 
 class StopLoss:
 
-    def __init__(self,
-                 open_price: pd.Series,
-                 high_price: pd.Series,
-                 low_price: pd.Series,
-                 close_price: pd.Series,
-                 open_datetime: datetime,
-                 trade_side: TradeSide,
-                 pip_decimal_position: int,
-                 stop_loss: float = None
-                 ):
+    def __init__(
+        self,
+        open_price: pd.Series,
+        high_price: pd.Series,
+        low_price: pd.Series,
+        close_price: pd.Series,
+        open_datetime: datetime,
+        trade_side: TradeSide,
+        pip_decimal_position: int,
+        stop_loss: float = None,
+    ):
 
         self._open_price: pd.Series = open_price
         self._high_price: pd.Series = high_price
@@ -206,8 +216,9 @@ class StopLoss:
         self._trade_side: TradeSide = trade_side
         self._pip_decimal_position: int = pip_decimal_position
 
-        self.barrier: OrderHit = OrderHit(order_type=OrderType.STOP_LOSS,
-                                          level=stop_loss)
+        self.barrier: OrderHit = OrderHit(
+            order_type=OrderType.STOP_LOSS, level=stop_loss
+        )
 
     def compute(self):
         self._compute_next_level_hit()
@@ -229,17 +240,18 @@ class StopLoss:
                 if len(high[mask_level_hit] != 0):
                     hit_datetime = low[mask_level_hit].index[0]
 
-        self.barrier.hit_datetime = datetime.fromtimestamp(datetime.timestamp(hit_datetime))
+        self.barrier.hit_datetime = datetime.fromtimestamp(
+            datetime.timestamp(hit_datetime)
+        )
 
 
 class TimeBarrier:
     # TODO: deal with no time barrier
     # TODO: deal with time barrier beyond last time series date
 
-    def __init__(self,
-                 open_price: pd.Series,
-                 time_limit_date: datetime,
-                 open_datetime: datetime):
+    def __init__(
+        self, open_price: pd.Series, time_limit_date: datetime, open_datetime: datetime
+    ):
         self.open_price: pd.Series = open_price
         self.open_datetime: datetime = open_datetime
 
@@ -250,7 +262,9 @@ class TimeBarrier:
         else:
             expiration_datetime = time_limit_date
 
-        self.barrier = OrderHit(order_type=OrderType.TIME_EXPIRATION, hit_datetime=expiration_datetime)
+        self.barrier = OrderHit(
+            order_type=OrderType.TIME_EXPIRATION, hit_datetime=expiration_datetime
+        )
 
     def compute(self):
         self._compute_hit_level()
@@ -267,11 +281,12 @@ class TimeBarrier:
 
 class DynamicOrder:
 
-    def __init__(self,
-                 open_price: pd.Series,
-                 exit_signals: pd.Series,
-                 open_datetime: datetime,
-                 ):
+    def __init__(
+        self,
+        open_price: pd.Series,
+        exit_signals: pd.Series,
+        open_datetime: datetime,
+    ):
         self.open_price = open_price
         self.open_datetime: datetime = open_datetime
         self.exit_signals: pd.Series = exit_signals
