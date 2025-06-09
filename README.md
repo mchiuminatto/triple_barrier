@@ -68,7 +68,7 @@ calculate all required performance metrics and that is why Triple Barrier was bu
 ### How to install
 
 ```commandline
-pip install triple-barrier==0.4.3rc0
+pip install triple-barrier==0.6.0
 ```
 
 
@@ -217,44 +217,27 @@ Eventually, you may want to check one single trade to verify results. To do so y
 
 ```python
 
-from triple_barrier.plots import PlotTripleBarrier
-from triple_barrier.trade_labeling import Labeler
-from triple_barrier.orders import Orders
-
-box_setup = Orders()
-
-box_setup.open_time = "2023-01-02 14:40:00"  # first trade of the list
-box_setup.open_price = price.loc[box_setup.open_time]["open"]
-box_setup.take_profit_width = TAKE_PROFIT_WIDTH
-box_setup.stop_loss_width = STOP_LOSS_WIDTH
-box_setup.time_limit = price[box_setup.open_time:].index[TRADE_PERIODS]
-box_setup.trade_side = TradeSide.BUY
-box_setup.pip_decimal_position = PIP_DECIMAL_POSITION
-
-print(box_setup)
-
-trade_labeler = Labeler(open_price=price.open,
-                               high_price=price.high,
-                               low_price=price.low,
-                               close_price=price.close,
-                               box_setup=box_setup)
-orders_hit = trade_labeler.compute()
-print(orders_hit)
-
-plot_tb = PlotTripleBarrier(price.open,
-                           price.high,
-                           price.low,
-                           price.close,
-                           4,
-                           periods_to_plot=30,
-                           overlay_features=[ price["mva-10"], price["mva-20"] ]
-                           )
-
-plot_tb.plot_multi_barrier(trade_labeler)
+dataset_labeler.plot("2023-01-02 23:40:00", 
+                     overlay_features=[price["mva-10"], price["mva-20"]], 
+                     oscillator_features=[price["awo"]],
+                     periods_before=7,
+                     periods_after=1)
 
 ```
 
-![plot_one_trade.png](docs/images/plot_one_trade.png)
+![plot_one_trade.png](![alt text](image.png))
+
+
+The first date 2023-01-02 23:40:00 is the trade opening date.
+overlay_features: indicators thta can be plotted along with price on the main chart
+oscillator_featyres: oscillators that are plotted on a panel, below the main one
+periods_before: number of perioods to be plotted before the trade opening
+periods-after: number of periods to be plotted after the time_expiratino for the trade
+
+
+Notes:
+
+- oscillator_features and overlay_features need to be time series
 
 ## TODO
 
@@ -265,8 +248,8 @@ Besides that, there are some identified tasks that need to be done before the fi
 - Add string representations for some classes
 - Refactor list of barriers hits (OrderBoxHits.barriers) as dictionary, currently is a list which
 is not much actionable.
-- Plotting: Add possibility to plot oscillators in a panel below
-- Add trailing stops
+- Extend for other financial instruments
+
 
 
 ## Other Documentation

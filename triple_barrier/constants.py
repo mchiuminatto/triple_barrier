@@ -18,4 +18,5 @@ TAKE_PROFIT: str = "take-profit"
 DYNAMIC_CLOSE: str = "dynamic-close"
 TIME_LIMIT: str = "time-limit"
 OPEN_PRICE: str = "open-price"
+OPEN_TIME: str = "open-time"
 # endregion
