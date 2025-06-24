@@ -225,7 +225,7 @@ dataset_labeler.plot("2023-01-02 23:40:00",
 
 ```
 
-![plot_one_trade.png](![alt text](image.png))
+![plot_one_trade.png](docs/images/wrapper_chart.png)
 
 
 The first date 2023-01-02 23:40:00 is the trade opening date.
