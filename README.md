@@ -1,6 +1,7 @@
 # WARNING:
 
-This is a work in progress DO NOT USE IT FOR PRODUCTION PURPOSES
+This library has not been tested for real trading yet, test it first for your traind style and instruments and strategies.
+
 
 # Overview
 
@@ -241,15 +242,11 @@ Notes:
 
 ## TODO
 
-This project is its final stages of testing, documentation and CLEANing.
+Next features:
 
-Besides that, there are some identified tasks that need to be done before the first release.
-
-- Add string representations for some classes
-- Refactor list of barriers hits (OrderBoxHits.barriers) as dictionary, currently is a list which
-is not much actionable.
+- Add metrics: Sharpe ratio, Profit Mean, Profit Variance, Maximum Drawdown, Drawdown Recovery Period
+- Consider trading costs (commissions, spreads)
 - Extend for other financial instruments
-
 
 
 ## Other Documentation
