@@ -69,7 +69,7 @@ calculate all required performance metrics and that is why Triple Barrier was bu
 ### How to install
 
 ```commandline
-pip install triple-barrier==0.6.0
+pip install triple-barrier
 ```
 
 
