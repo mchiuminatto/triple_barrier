@@ -244,6 +244,7 @@ Notes:
 
 Next features:
 
+- 🚧 Use tick data for entry, stop-loss, take-profit.
 - Add metrics: Sharpe ratio, Profit Mean, Profit Variance, Maximum Drawdown, Drawdown Recovery Period
 - Consider trading costs (commissions, spreads)
 - Extend for other financial instruments
